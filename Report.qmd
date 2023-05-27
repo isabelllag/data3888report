@@ -20,6 +20,8 @@ editor: visual
 
 ## Discussion
 
+Our group identifies three main shortcomings of our project and final product. First, our project is much more focused on the data science discipline, neglecting the implications of financial knowledge. For example, we use only one method of calculating volatility, namely the standard deviation of returns, without considering other methods like beta coefficient. This potentially leads to differences in our final evaluation of models as our models\' performance may change depending on the method of volatility used. Second, our clustering of the dataset is possibly futile from hindsight. We clustered the stocks using liquidity; however, after evaluation, SVM(Support Vector Machine) ends up being the best model for the majority of the clusters. A potential reason for this is that our clustering is based on only one variable, i.e. liquidity, ignoring other characteristics of a stock. A better clustering using more variables can produce a different set of clusters, thus resulting in different model performance and final evaluation. Third, our group did not use feature selection, and we could have used selection criteria like AIC or BIC to choose the most important features. Such selection can reduce our training time, and potentially change our model performance, leading to different evaluation results.
+
 ## Conclusion
 
 ## Student Contributions
@@ -28,4 +30,4 @@ editor: visual
 
 ## Appendix
 
-###  
+### 
