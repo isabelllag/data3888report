@@ -36,6 +36,8 @@ Despite its significance, volatility is inherently unobservable and needs to be 
 
 ### A. Models
 
+Besides, we also test the training time of each model. Since we can see that the RMSE boxes are similar for each model in our boxplot. Therefore shorter training time of a model could be better in the rapidly changing stock market.
+
 ### B. Deployment
 
 ## Discussion
