@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.0.37">
+<meta name="generator" content="quarto-1.0.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -77,9 +77,19 @@ ul.task-list{list-style: none;}
 </section>
 <section id="discussion" class="level2">
 <h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
+<p>Our group identifies three main shortcomings of our project and final product. First, our project is much more focused on the data science discipline, neglecting the implications of financial knowledge. For example, we use only one method of calculating volatility, namely the standard deviation of returns, without considering other methods like beta coefficient. This potentially leads to differences in our final evaluation of models as our models' performance may change depending on the method of volatility used. Second, our clustering of the dataset is possibly futile from hindsight. We clustered the stocks using liquidity; however, after evaluation, SVM(Support Vector Machine) ends up being the best model for the majority of the clusters. A potential reason for this is that our clustering is based on only one variable, i.e.&nbsp;liquidity, ignoring other characteristics of a stock. A better clustering using more variables can produce a different set of clusters, thus resulting in different model performance and final evaluation. Third, our group did not use feature selection, and we could have used selection criteria like AIC or BIC to choose the most important features. Such selection can reduce our training time, and potentially change our model performance, leading to different evaluation results.</p>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>The aim of our project is to develop and communicate a model that accurately predicts stock volatility and can be interpreted clearly by traders. After initial preliminary calculations on the datasets, we organised them into six clusters and used six different models - ARMA-GARCH, SVM, Regression, HAR-RV, LSTM and Random Forest - for evaluation. Using RMSE as our main evaluation metric, we found the best models for each cluster and effectively communicated our findings using an illustrative ShinyApp. For future improvements, our group identified at least three areas:</p>
+<ol type="1">
+<li><p>Using different methods of calculating volatility for comparison.</p></li>
+<li><p>Clustering the datasets using more features of the stocks.</p></li>
+<li><p>Feature selection of the variables used for training the models.</p></li>
+</ol>
+<p>We believe that these future works will improve our model performance.</p>
+<p><br>
+</p>
 </section>
 <section id="student-contributions" class="level2">
 <h2 class="anchored" data-anchor-id="student-contributions">Student Contributions</h2>
