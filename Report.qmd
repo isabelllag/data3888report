@@ -36,6 +36,8 @@ Despite its significance, volatility is inherently unobservable and needs to be 
 
 ### A. Models
 
+In the project, we need to evaluate the effectiveness of six distinct models across the six clusters of the stock data. We considered different strategies to evaluate our models for each cluster. There are three metrics that  we plan to use. They are  Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, we decide to use RMSE to estimate the accuracy of our models instead of MAE and R\^2. RMSE gauges the mean square magnitude of errors, it is more sensitive to outliers. This characteristic is particularly salient in the realm of financial data, which often harbors significant outliers and where the impact of sizeable errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors,  it is less sensitive to outliers compared to RMSE. Also, we are not able to justify whether the error is positive or negative when we used MAE. But it is significant for volatility  to know its trends. These shortcomings also apply to R\^2. Even though R\^2  is good at providing  an overall measure of model fit, it fails to directly reflect the magnitude or direction of prediction errors.
+
 Besides, we also test the training time of each model. Since we can see that the RMSE boxes are similar for each model in our boxplot. Therefore shorter training time of a model could be better in the rapidly changing stock market.
 
 ### B. Deployment
