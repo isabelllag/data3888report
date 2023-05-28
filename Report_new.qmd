@@ -2100,9 +2100,9 @@ length(Cl4_Qlike) = 500
 length(Cl5_Qlike) = 500
 ```
 
-Shiny App code
+7.  Shiny App code
 
-```{r}
+```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
@@ -2393,6 +2393,8 @@ shinyApp(ui = ui, server = server)
 
 
 ```
+
+![Figure1](figure1.png)
 
 Shiny App link:
 
