@@ -204,15 +204,17 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall MSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model.
-For this report, Baiyu responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results A part. Yuxiang responsible for Results B, and Discussion & Conclusion wrote by Alan. Everyone in the group wrote their own model description part in Method A.
-
+For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall MSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model. For this report, Baiyu responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results A part. Yuxiang responsible for Results B, and Discussion & Conclusion wrote by Alan. Everyone in the group wrote their own model description part in Method A.
 
 ## References
 
 \[1\] Ben R. Marshall, Martin Young Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
 
-Wei Liu and Bruce Morley, 'Volatility in the Hang Seng Index using the GARCH Approach', Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4
+\[2\] ALLAUDEEN HAMEED, WENJIN KANG, S. VISWANATHAN Stock Market Declines and Liquidity (2010)[ https://doi.org/10.1111/j.1540-6261.2009.01529.x](https://doi.org/10.1111/j.1540-6261.2009.01529.x) 
+
+\[3\] Hong Zhang, Yaobin Lu, Sumeet Gupta, Ling Zhao What motivates customers to participate in social commerce? The impact of technological environments and virtual customer experiences (2014) https://doi.org/10.1016/j.im.2014.07.005
+
+\[4\] Wei Liu and Bruce Morley, 'Volatility in the Hang Seng Index using the GARCH Approach', Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4
 
 ## Appendix
 
