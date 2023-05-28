@@ -8,22 +8,21 @@ editor: visual
 
 **Aim**
 
-Financial markets exhibit a high degree of uncertainty and risk, making it a challenging environment for both individual investors and financial institutions. Optiver, as a leading global market maker, specializes in creating fair, orderly, and efficient markets in a variety of financial instruments. One critical aspect that characterizes the behavior of these financial markets is 'volatility'. Volatility refers to the degree of variation observed in the price of a financial instrument over time and is a key measure of market risk.
+Volatility is the degree of variation observed in the price of a financial instrument over time and is a key measure of market risk. For any trading firm including Optiver, volatility is crucial in option pricing and trading strategies.
 
-The aim of this project is to find the model that offers the best tradeoff among accuracy, interpretability and robustness, and to investigate the effects that input stocks have on the model performance.
+The aim of this project is to find the model that offers the best tradeoff among prediction accuracy, model interpretability and model robustness, and to investigate the effects that input stocks have on model performance.
 
 **Multidisciplinarity**
 
-This project lies at the intersection of finance and data science. From the perspective of finance, understanding and predicting volatility is key to efficient portfolio management and risk mitigation. From the data science standpoint, this task represents a complex problem of time series prediction, which is generally characterized by non-linear, non-stationary, and potentially high-dimensional data. The development of a reliable volatility prediction model would therefore require a deep understanding of both these domains.
+This project requires both finance and data science knowledge. From the financial perspective, understanding and predicting volatility is critical for successful trading strategies. From the data science standpoint, predicting volatility is a complicated task involving time series prediction, which is generally characterized by non-linear, non-stationary, and potentially high-dimensional data. The development of a reliable volatility prediction model would therefore require a deep understanding of both of these domains.
 
 **Motivational background**
 
-When developing models to predict volatility, there is necessarily a tradeoff between predictive power and interpretability. Indeed, Optiver identified an issue with their capacity to encourage traders to use more complex volatility models, because traders struggled to understand and therefore implement those models. Consequently, Optiver approached DATA3888 students at the University of Sydney to grapple with this tradeoff by developing a model to predict volatility, and effectively communicating that model to traders. 
+For any complex models, there is necessarily a tradeoff between predictive power and interpretability. Indeed, Optiver identifies such an issue, so they value a model\'s interpretability as much as its performance. Consequently, Optiver approached DATA3888 students to grapple with this tradeoff by developing a model to accurately predict volatility, and also effectively communicating that model to traders. \
 
-As market makers, Optiver needs to quote prices at which they are willing to buy and sell financial instruments. These prices are largely influenced by the anticipated market volatility. High volatility increases the risk of market making and requires wider spreads, while low volatility allows for tighter spreads. Thus, the ability to accurately predict volatility is directly linked to Optiver's market making profitability.
+Despite being a critical measure for trading, volatility is inherently difficult to predict. Traditional models like the GARCH model and its variants have limitations due to their assumptions and rigid structure. In this project, our group evaluated various models, from basic models like regression to deep learning models like LSTM, to find the best model for predicting volatility. At the same time, we are aware of the interpretability problem and aims to explain our model clearly.
 
-Despite its significance, volatility is inherently unobservable and needs to be estimated from available market data. Traditional models like the GARCH model and its variants have limitations due to their assumptions and rigid structure. With the advent of machine learning techniques, there is potential to improve upon these traditional models by learning complex patterns from the data and offering superior predictive performance. Therefore, the generation of these models would represent a significant advancement in the profitability of the trading industry, and for Optiver in particular.
-
+\
 \
 
 ## Method
@@ -68,7 +67,7 @@ A random forest model works by creating many decision trees, each of which is tr
 
 The reasons why the Random Forest model was chosen for this project are robustness and flexibility. Random Forests are less likely to overfit the data compared to individual decision trees because they average the results of many different trees. Random Forest can handle both linear and non-linear relationships between predictors and the target variable, which is useful because the relationship between various factors and market volatility might not always be linear.
 
-### B.  **Relevance to Industry Partner**
+### B. **Relevance to Industry Partner**
 
 Predicting volatility is relevant to Optiver because volatility is an important element in the Black-Scholes equation, which is used for options pricing, as well as for understanding risk. 
 
