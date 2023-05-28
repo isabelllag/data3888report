@@ -208,9 +208,9 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall RMSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model.
+For this project, Derek calculated the liquidity for the data clustering, Alan did the k-means clustering, and each group member trained a model for comparing. After every one got the results, Derek generated the overall RMSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model. Alan and Isabella did the shiny app.
 
-For this report, Baiyu is responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results part A. Yuxiang responsible for Results Part B, and Discussion & Conclusion is written by Alan. Everyone in the group wrote their own model description part in Method A.
+For this report, Baiyu is responsible for Aim & Background part. Isabella did the Method Part B. Derek and Tom completed the Results Part A. Yuxiang responsible for Results Part B, and Discussion & Conclusion is written by Alan. Everyone in the group wrote their own model description part in Method A.
 
 ## References
 
