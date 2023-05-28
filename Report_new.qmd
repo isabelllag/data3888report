@@ -28,9 +28,6 @@ For any complex models, there is necessarily a tradeoff between predictive power
 
 Despite being a critical measure for trading, volatility is inherently difficult to predict. Traditional models like the GARCH model and its variants have limitations due to their assumptions and rigid structure. In this project, our group evaluated various models, from basic models like regression to deep learning models like LSTM, to find the best model for predicting volatility. At the same time, we are aware of the interpretability problem and aims to explain our model clearly.
 
-\
-\
-
 ## Method
 
 ### A. Data Science Perspective
