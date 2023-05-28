@@ -203,6 +203,13 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
+Aim & background: Baiyu 
+Method A: everyone (do own model)
+Method B: Isabella
+Results A: Derek & Tom
+Results B: Yuxiang 
+Discussion and conclusion: Alan
+
 ## References
 
 \[1\] Ben R. Marshall, Martin Young Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
