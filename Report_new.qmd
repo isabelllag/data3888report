@@ -8,7 +8,7 @@ editor: visual
 
 ## Executive Summary
 
-The purpose of this project is to develop a model that accurately predicts volatility and to explain the model clearly to traders at Optiver. The method was to use stock data from Optiver to train six models for predicting volatility, evaluate those models, then communicate the results using a Shiny App.
+The purpose of this project is to develop a model that accurately predicts volatility and to explain the model clearly to traders at Optiver. The method was to use stock data from Optiver to train six models for predicting volatility, evaluate those models, then communicate the results using a Shiny App (code and link in Appendix).
 
 Our project has two key results. First, we found that SVM (Support Vector Machine) is most accurate for predicting the future volatility of most stocks, although ridge regression also performs well. Second, we deployed an interactive Shiny App to effectively communicate our results to traders.
 
@@ -1667,8 +1667,7 @@ for (i in 1:50){
 boxplot(RMSE)
 ```
 
-
-5. Coding for ARMAGARCH model
+5.  Coding for ARMAGARCH model
 
 ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 #helper function, computes vol
@@ -1757,7 +1756,7 @@ boxplot(cluster5_mse, main="Cluster 5 MSE")
 boxplot(cluster6_mse, main="Cluster 6 MSE")
 ```
 
-6. Coding for Random Forest
+6.  Coding for Random Forest
 
 ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 library(randomForest)
@@ -2100,3 +2099,301 @@ Cl6_rsq <- c(R_square[[26]],R_square[[27]],R_square[[28]],R_square[[29]],R_squar
 length(Cl4_Qlike) = 500
 length(Cl5_Qlike) = 500
 ```
+
+Shiny App code
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(tidyverse)
+library(DT)
+options(shiny.maxRequestSize = 200*1024^2)
+
+liquidity_func <- function(df){
+  df1 <- na.omit(df)
+  l <- sum(mean(df1$bid_size1), mean(df1$bid_size2),mean(df1$ask_size1),mean(df1$ask_size2))
+  
+  clusters <-  c(1026,3396,5537,469,2121,50046)
+  selected_clus <- which.min(abs(l-clusters))
+  return(c(round(l,0),selected_clus))
+}
+
+lm_plot <- function(stock7){
+  stock7 <- stock7 %>% mutate(
+    WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+  stock7 <- stock7 %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+  stock7 <- stock7 %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+  
+  comp_vol <- function(x) {
+    return(sqrt(sum(x ^ 2)))
+  }
+  
+  agerage <- function(x) {
+    return((sum(x))/length(x))
+  }
+  
+  time_IDs7 <- unique(stock7[, 1])
+  
+  datalist <- list()
+  
+  log_r1 <- list()
+  
+  for (a in 1 : 100) {
+    sec <- stock7 %>% filter(time_id == time_IDs7[a]) %>% pull(seconds_in_bucket)
+    BS1 <- stock7 %>% filter(time_id == time_IDs7[a]) %>% pull(BidAskSpread1)
+    order <- stock7 %>% filter(time_id == time_IDs7[a]) %>% pull(num_order)
+    price <- stock7 %>% filter(time_id == time_IDs7[a]) %>% pull(WAP) 
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
+    log_r1[[a]] <- data.frame(time = sec[-1], 
+                              price = price[-1], 
+                              BidAskSpread1= BS1[-1], 
+                              num_order = order[-1],
+                              log_return = log_r)
+    
+  }
+  vol <- list()
+  
+  for (b in 1 : length(log_r1)) {
+    log_r1[[b]] <- log_r1[[b]] %>% mutate(time_id = time_IDs7[b])
+    vol[[b]] <- aggregate(log_return ~ time_id, data = log_r1[[b]], FUN = comp_vol)
+    vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_id, data = log_r1[[b]], FUN = agerage))
+    vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_id, data = log_r1[[b]], FUN = agerage))
+    vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_id, data = log_r1[[b]], FUN = agerage))
+    colnames(vol[[b]]) <- c('time_id', 
+                            'volatility','price', 
+                            'BidAskSpread1', 
+                            'num_order' )
+  }
+  
+  datatable <- data.frame()
+  
+  for(d in 1 : length(vol)){
+    datatable <- rbind(datatable, vol[[d]])
+  }
+  
+  modelname <- readRDS("glmnet4.rds")
+  predicted <- predict(modelname , newdata = datatable)
+  p <- ggplot() + ggtitle("Predictive Plot") +
+    geom_line(data = datatable, aes(x =time_id, y = volatility, color = "blue"))+
+    labs(x = "Time ID Number", y = "volatility") + 
+    geom_line(data = as.data.frame(predicted), aes(x = datatable$time_id, y = (predicted), color = "red"))
+  return(p)
+}
+
+
+#UI----
+ui <- dashboardPage(
+  dashboardHeader(title = "Optiver 13"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Cluster 1", tabName = "cluster1", icon = icon("dashboard")),
+      menuItem("Cluster 2", tabName = "cluster2", icon = icon("dashboard")),
+      menuItem("Cluster 3", tabName = "cluster3", icon = icon("dashboard")),
+      menuItem("Cluster 4", tabName = "cluster4", icon = icon("dashboard")),
+      menuItem("Cluster 5", tabName = "cluster5", icon = icon("dashboard")),
+      menuItem("Cluster 6", tabName = "cluster6", icon = icon("dashboard")),
+      menuItem("Interactive Function", tabName = "interactive", icon = icon("dashboard"))
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      tabItem("cluster1",
+              selectInput("features1","Type of plot:",
+                          c("Boxplots", "Predictive plot")),
+              box(imageOutput("cluster_one"),width = 12),
+              box(textOutput("liquidity1"),width = 12),
+              box(textOutput("text1"),width = 12)
+      ),
+      tabItem("cluster2",
+              selectInput("features2","Type of plot:",
+                          c("Boxplots", "Predictive plot")),
+              box(imageOutput("cluster_two"), width = 12),
+              box(textOutput("liquidity2"),width = 12),
+              box(textOutput("text2"),width = 12)
+      ),
+      tabItem("cluster3",
+              selectInput("features3","Type of plot:",
+                          c("Boxplots", "Predictive plot")),
+              box(imageOutput("cluster_three"), width = 12),
+              box(textOutput("liquidity3"),width = 12),
+              box(textOutput("text3"),width = 12)
+      ),
+      tabItem("cluster4",
+              selectInput("features4","Type of plot:",
+                          c("Boxplots", "Predictive plot")),
+              box(imageOutput("cluster_four"), width = 12),
+              box(textOutput("liquidity4"),width = 12),
+              box(textOutput("text4"),width = 12)
+
+      ),
+      tabItem("cluster5",
+              selectInput("features5","Type of plot:",
+                          c("Boxplots", "Predictive plot")),
+              box(imageOutput("cluster_five"), width = 12),
+              box(textOutput("liquidity5"),width = 12),
+              box(textOutput("text5"),width = 12)
+      ),
+      tabItem("cluster6",
+              selectInput("features6","Type of plot:",
+                          c("Boxplots", "Predictive plot")),
+              box(imageOutput("cluster_six"), width = 12),
+              box(textOutput("liquidity6"),width = 12),
+              box(textOutput("text6"),width = 12)
+
+      ),
+      tabItem("interactive",
+              fileInput("file","Select a file:"),
+              box(textOutput("interactive_liquidity"), width = 12),
+              box(textOutput("select_clus"), width = 12),
+              box(plotOutput("interactive_plot"), width = 12)
+              
+              
+      )         
+    )
+  )
+)
+
+
+
+
+
+
+#server-------
+server <- function(input, output,session){
+  output$cluster_one <- renderImage({
+    if(input$features1 == "Boxplots") Leg<-"cluster1.jpg"
+    if(input$features1 == "Predictive plot") Leg<-"p1.jpeg"
+    list(src = Leg,
+         width = "90%",
+         height = 400)
+    
+  }, deleteFile = F)
+  
+  output$liquidity1 <- renderText({
+    "Liquidity: 1026. Second lowest"
+  })
+  
+  output$text1 <- renderText({
+    "Svm finds patterns in data by identifying decision boundaries between different levels of a target variable. In this case, we randomly picked 100 time_ids in each selected stock from each cluster. In each time id we make time interval for every 30 second and repeatedly trained 4 time intervals then tested 1 time interval. Then we take the rmse from each time id. The results have been showed. SVM had the best performance in cluster1,2,3,5 and 6. We think it's because Svm is great to handle high-dimensional data, which is suitable for stock prediction given that stock dataset are very complicated. Also, Svm is robust to outliers, which is shown in the boxplots. Generally, Svm’s outliers are fewer than other models."
+  })
+  
+  output$cluster_two <- renderImage({
+    if(input$features2 == "Boxplots") Leg<-"cluster2.jpg"
+    if(input$features2 == "Predictive plot") Leg<-"p2.jpeg"
+    list(src = Leg,
+         width = "90%",
+         height = 400)
+    
+  }, deleteFile = F)
+  
+  output$liquidity2 <- renderText({
+    "Liquidity: 3396. Third highest"
+  })
+  
+  output$text2 <- renderText({
+    "Svm finds patterns in data by identifying decision boundaries between different levels of a target variable. In this case, we randomly picked 100 time_ids in each selected stock from each cluster. In each time id we make time interval for every 30 second and repeatedly trained 4 time intervals then tested 1 time interval. Then we take the rmse from each time id. The results have been showed. SVM had the best performance in cluster1,2,3,5 and 6. We think it's because Svm is great to handle high-dimensional data, which is suitable for stock prediction given that stock dataset are very complicated. Also, Svm is robust to outliers, which is shown in the boxplots. Generally, Svm’s outliers are fewer than other models."
+  })
+  
+  output$cluster_three <- renderImage({
+    if(input$features3 == "Boxplots") Leg<-"cluster3.jpg"
+    if(input$features3 == "Predictive plot") Leg<-"p3.jpeg"
+    list(src = Leg,
+         width = "90%",
+         height = 400)
+    
+  }, deleteFile = F)
+  
+  output$liquidity3 <- renderText({
+    "Liquidity: 5537. Second highest"
+  })
+  
+  output$text3 <- renderText({
+    "Svm finds patterns in data by identifying decision boundaries between different levels of a target variable. In this case, we randomly picked 100 time_ids in each selected stock from each cluster. In each time id we make time interval for every 30 second and repeatedly trained 4 time intervals then tested 1 time interval. Then we take the rmse from each time id. The results have been showed. SVM had the best performance in cluster1,2,3,5 and 6. We think it's because Svm is great to handle high-dimensional data, which is suitable for stock prediction given that stock dataset are very complicated. Also, Svm is robust to outliers, which is shown in the boxplots. Generally, Svm’s outliers are fewer than other models."
+  })
+  
+  output$cluster_four <- renderImage({
+    if(input$features4 == "Boxplots") Leg<-"cluster4.jpg"
+    if(input$features4 == "Predictive plot") Leg<-"p4.jpeg"
+    list(src = Leg,
+         width = "90%",
+         height = 400)
+    
+  }, deleteFile = F)
+  
+  output$liquidity4 <- renderText({
+    "Liquidity: 469. Lowest"
+  })
+  
+  output$text4 <- renderText({
+    "Ridge regression is a regularised linear regression method. It is different from ordinary linear regression in that it adds a regularisation term to the objective function, which is the product of the sum of the squares of the coefficients and a regularisation parameter lambda. 
+
+The training process consists of trying different lambda values and selecting the best though methods like cross-validation. Sometimes the predictive model is not ideal because it may overfit to the training data. If traders want to use this model to predict future volatility, they can consider using part of this data set to train the model to achieve better accuracy."
+  })
+  
+  output$cluster_five <- renderImage({
+    if(input$features5 == "Boxplots") Leg<-"cluster5.jpg"
+    if(input$features5 == "Predictive plot") Leg<-"p5.jpeg"
+    list(src = Leg,
+         width = "90%",
+         height = 400)
+    
+  }, deleteFile = F)
+  
+  output$liquidity5 <- renderText({
+    "Liquidity: 2121. Third lowest"
+  })
+  
+  output$text5 <- renderText({
+    "Svm finds patterns in data by identifying decision boundaries between different levels of a target variable. In this case, we randomly picked 100 time_ids in each selected stock from each cluster. In each time id we make time interval for every 30 second and repeatedly trained 4 time intervals then tested 1 time interval. Then we take the rmse from each time id. The results have been showed. SVM had the best performance in cluster1,2,3,5 and 6. We think it's because Svm is great to handle high-dimensional data, which is suitable for stock prediction given that stock dataset are very complicated. Also, Svm is robust to outliers, which is shown in the boxplots. Generally, Svm’s outliers are fewer than other models."
+  })
+  
+  output$cluster_six <- renderImage({
+    if(input$features6 == "Boxplots") Leg<-"cluster6.jpg"
+    if(input$features6 == "Predictive plot") Leg<-"p6.jpeg"
+    list(src = Leg,
+         width = "90%",
+         height = 400)
+    
+  }, deleteFile = F)
+  
+  output$liquidity6 <- renderText({
+    "Liquidity: 50046. Extremely high"
+  })
+  
+  output$text6 <- renderText({
+    "Svm finds patterns in data by identifying decision boundaries between different levels of a target variable. In this case, we randomly picked 100 time_ids in each selected stock from each cluster. In each time id we make time interval for every 30 second and repeatedly trained 4 time intervals then tested 1 time interval. Then we take the rmse from each time id. The results have been showed. SVM had the best performance in cluster1,2,3,5 and 6. We think it's because Svm is great to handle high-dimensional data, which is suitable for stock prediction given that stock dataset are very complicated. Also, Svm is robust to outliers, which is shown in the boxplots. Generally, Svm’s outliers are fewer than other models."
+  })
+  
+  observeEvent(input$file,{
+    input_file <- read.csv(input$file$datapath)
+    result <- liquidity_func(input_file)
+    
+    output$interactive_liquidity <- renderText({
+      paste("Liquidity of input stock: ", result[1])
+    })
+    
+    output$select_clus <- renderText({
+      paste("Selected cluster: ", result[2])
+    })
+    
+    output$interactive_plot <- renderPlot({
+      
+        lm_plot(input_file)
+      
+    })
+  })
+
+  
+  
+}
+
+#run app-------
+#profvis({shinyApp(ui = ui, server = server)})
+shinyApp(ui = ui, server = server)
+
+
+```
+
+Shiny App link:
+
+https://alanx.shinyapps.io/Optiver_13_Shiny/
