@@ -95,7 +95,7 @@ Our group tested the overall time required for each model to complete its predic
 In the table below, we show the mean RMSE values for each cluster and each model. More information can be found in boxplots in the appendix. In this table, SVM and Ridge Regression perform better, but RMSE of SVM possesse fewer outliers compared to Regression.
 
 |                  |             |             |             |             |             |             |
-|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
+|------------------|-------------|-------------|-------------|-------------|-------------|-------------|
 |                  | Cluster1    | Cluster2    | Cluster3    | Cluster4    | Cluster5    | Cluster6    |
 | ARMA-GARCH       | 0.000397717 | 0.000397711 | 0.000397592 | 0.000397779 | 0.000397691 | 0.00049788  |
 | SVM              | 0.000234895 | 0.000138351 | 0.000160307 | 0.000325224 | 0.000228932 | 0.00017798  |
@@ -1668,9 +1668,9 @@ for (i in 1:50){
 boxplot(RMSE)
 ```
 
-    5.  Coding for ARMA-GARCH
+5.  Coding for ARMA-GARCH
 
-    ```{r}
+```{r}
     #helper function, computes vol
     comp_vol <- function(x) {
       return(sqrt(sum(x ^ 2)))
@@ -1738,9 +1738,9 @@ boxplot(RMSE)
       }
       MSE.ag
     }
-    ```
+```
 
-    ```{r}
+```{r}
     #calculate MSE for each cluster
     cluster1_mse = c(arma_mse(stock67), arma_mse(stock70), arma_mse(stock2), arma_mse(stock81), arma_mse(stock52))
     cluster2_mse = c(arma_mse(stock86), arma_mse(stock43), arma_mse(stock29), arma_mse(stock13), arma_mse(stock124))
@@ -1748,7 +1748,7 @@ boxplot(RMSE)
     cluster4_mse = c(arma_mse(stock15), arma_mse(stock38), arma_mse(stock101), arma_mse(stock98), arma_mse(stock109))
     cluster5_mse = c(arma_mse(stock123), arma_mse(stock74), arma_mse(stock105), arma_mse(stock85), arma_mse(stock63))
     cluster6_mse <- c(arma_mse(stock31), arma_mse(stock32), arma_mse(stock77), arma_mse(stock108), arma_mse(stock41))
-    
+
     #boxplots of MSE
     par(mfrow = c(2, 3))
     boxplot(cluster1_mse, main="Cluster 1 MSE")
@@ -1757,4 +1757,4 @@ boxplot(RMSE)
     boxplot(cluster4_mse, main="Cluster 4 MSE")
     boxplot(cluster5_mse, main="Cluster 5 MSE")
     boxplot(cluster6_mse, main="Cluster 6 MSE")
-    ```
+```
