@@ -1,0 +1,157 @@
+---
+title: "har-rv"
+output: html_document
+date: "2023-04-17"
+---
+
+
+
+```{r}
+stock_1 <- read.csv("~/Desktop/DATA3888/individual_book_train/stock_41.csv")
+
+stock_1 <- stock_1 %>% mutate(
+  WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+stock_1 <- stock_1 %>% mutate(BidAskSpread = ask_price1 / bid_price1 - 1)
+
+log_r1 <- list()
+time_IDs <- unique(stock_1[, 1])[1:50]
+for (i in 1 : length(time_IDs)) {
+  sec <- stock_1 %>% filter(time_id == time_IDs[i]) %>% pull(seconds_in_bucket)
+  price <- stock_1 %>% filter(time_id == time_IDs[i]) %>% pull(WAP)
+  log_r <- log(price[-1] / price[1:(length(price) - 1)])
+  log_r1[[i]] <- data.frame(time = sec[-1], log_return = log_r)
+  time.no.change <- (1:600)[!(1:600 %in% log_r1[[i]]$time)]
+  if (length(time.no.change) > 0) {
+    new.df <- data.frame(time = time.no.change, log_return = 0)
+    log_r1[[i]] <- rbind(log_r1[[i]], new.df)
+    log_r1[[i]] <- log_r1[[i]][order(log_r1[[i]]$time), ]
+  }
+}
+
+vol <- list()
+comp_vol <- function(x) {
+  return(sqrt(sum(x ^ 2)))
+}
+for (i in 1 : length(log_r1)) {
+  log_r1[[i]] <- log_r1[[i]] %>% mutate(time_bucket = ceiling(time / 30))
+  vol[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_vol)
+  colnames(vol[[i]]) <- c('time_bucket', 'volatility')
+}
+
+
+```
+
+```{r}
+
+
+log_r1_2 <- list()
+time_IDs2 <- unique(stock_1[, 1])[51:550]
+for (i in 1 : length(time_IDs2)) {
+  sec2 <- stock_1 %>% filter(time_id == time_IDs2[i]) %>% pull(seconds_in_bucket)
+  price2 <- stock_1 %>% filter(time_id == time_IDs2[i]) %>% pull(WAP)
+  log_r2 <- log(price2[-1] / price2[1:(length(price2) - 1)])
+  log_r1_2[[i]] <- data.frame(time = sec2[-1], log_return = log_r2)
+  time.no.change2 <- (1:600)[!(1:600 %in% log_r1_2[[i]]$time)]
+  if (length(time.no.change2) > 0) {
+    new.df2 <- data.frame(time = time.no.change2, log_return = 0)
+    log_r1_2[[i]] <- rbind(log_r1_2[[i]], new.df2)
+    log_r1_2[[i]] <- log_r1_2[[i]][order(log_r1_2[[i]]$time), ]
+  }
+}
+
+vol_2 <- list()
+comp_vol <- function(x) {
+  return(sqrt(sum(x ^ 2)))
+}
+for (i in 1 : length(log_r1_2)) {
+  log_r1_2[[i]] <- log_r1_2[[i]] %>% mutate(time_bucket = ceiling(time / 30))
+  vol_2[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1_2[[i]], FUN = comp_vol)
+  colnames(vol_2[[i]]) <- c('time_bucket', 'volatility')
+}
+```
+
+
+```{r}
+vol.train <- list()
+
+for (i in 1 : length(log_r1)) {
+  vol.train[[i]] <- vol[[i]]
+}
+
+len.train <- length(vol.train[[1]]$volatility)
+
+list.HAV <- list()
+
+for (i in 1 : length(vol)) {
+  mean.vol <- rep(0, len.train - 5)
+  for (j in 1 : 5) {
+    mean.vol <- mean.vol + vol.train[[i]]$volatility[j : (j + len.train - 6)] / 5
+  }
+  list.HAV[[i]] <- data.frame(vol = vol.train[[i]]$volatility[-(1:5)], 
+                              vol_1 = vol.train[[i]]$volatility[5:(len.train - 1)],
+                              mean_vol_5 = mean.vol)
+}
+
+quar <- list()
+comp_quar <- function(x) {
+  return(length(x) / 3 * sum(x ^ 4))
+}
+for (i in 1 : length(log_r1)) {
+  quar[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_quar)
+  colnames(quar[[i]]) <- c('time_bucket', 'quarticity')
+}
+
+HAV.ols.models <- list()
+HAV.wls.models <- list()
+
+for (i in 1 : length(vol)) {
+  HAV.ols.models[[i]] <- lm(vol ~ vol_1 + mean_vol_5, list.HAV[[i]])
+  
+  # weight.HAV <- 0
+  HAV.wls.models[[i]] <- lm(vol ~ vol_1 + mean_vol_5, list.HAV[[i]],
+                            weights = list.HAV[[i]]$vol_1 / 
+                              sqrt(quar[[i]]$quarticity[5:(len.train - 1)]))
+}
+
+```
+
+```{r}
+vol.test <- list()
+
+for (i in 1 : length(log_r1_2)) {
+  vol.test[[i]] <- vol_2[[i]]
+}
+
+len.test <- length(vol.test[[1]]$volatility)
+
+list.HAV.test <- list()
+
+for (i in 1 : length(vol_2)) {
+  mean.vol.test <- rep(0, len.test - 5)
+  for (j in 1 : 5) {
+    mean.vol.test <- mean.vol.test + vol.test[[i]]$volatility[j : (j + len.test - 6)] / 5
+  }
+  list.HAV.test[[i]] <- data.frame(vol = vol.test[[i]]$volatility[-(1:5)], 
+                              vol_1 = vol.test[[i]]$volatility[5:(len.test - 1)],
+                              mean_vol_5 = mean.vol)
+}
+
+
+for (i in 1:50){
+  for(j in 1:10){
+    predicted <- predict(HAV.wls.models[[i]], newdata = list.HAV.test[[(i-1)*5 + j]])
+    mse <- mean((predicted - list.HAV.test[[(i-1)*5 + j]]$vol)^2)
+    rmse <- sqrt(mse)
+    RMSE_6 <- append(RMSE_6, rmse)
+  }
+}
+boxplot(RMSE_1)
+
+```
+
+```{r}
+rmses <- data.frame(RMSE_1,RMSE_2,RMSE_3,RMSE_4,RMSE_5,RMSE_6)
+names(rmses) <- c("cluster1","cluster2","cluster3","cluster4","cluster5","cluster6")
+write.csv(rmses, "~/Downloads/rmse.csv", row.names=FALSE)
+```
+
