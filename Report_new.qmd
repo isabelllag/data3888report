@@ -225,8 +225,16 @@ Aim & background: Baiyu Method A: everyone (do own model) Method B: Isabella Res
 ```{r}
 sessionInfo()
 ```
+1. Boxplots for each cluster
 
-1.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
+![Cluster1](figure1.png)
+![Cluster2](figure1.png)
+![Cluster3](figure1.png)
+![Cluster4](figure1.png)
+![Cluster5](figure1.png)
+![Cluster6](figure1.png)
+
+2.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
 
 ```{r, eval=FALSE, warning=FALSE, message=FALSE}
 # Prepare work for clustering
@@ -361,7 +369,7 @@ df_list <- list()
 
 ```
 
-2.  Coding for LSTM
+3.  Coding for LSTM
 
 ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 ### Library
@@ -711,7 +719,7 @@ write.csv(R_squared_cluster_results, "result/LSTM_R_SQUARED.csv", row.names=FALS
 
 ```
 
-3.  Coding for Ridge regression
+4.  Coding for Ridge regression
 
 ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 library(plyr)
@@ -1530,7 +1538,7 @@ write.csv(filtered_data6, "pred6.csv", row.names = FALSE)
 
 ```
 
-4.  Coding for HAR-RV
+5.  Coding for HAR-RV
 
 ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 #Reading in stock csv file
@@ -1672,7 +1680,7 @@ for (i in 1:50){
 boxplot(RMSE)
 ```
 
-5.  Coding for ARMAGARCH model
+6.  Coding for ARMAGARCH model
 
 ```{r, echo=FALSE}
 #helper function, computes vol
@@ -1761,7 +1769,7 @@ boxplot(cluster5_mse, main="Cluster 5 MSE")
 boxplot(cluster6_mse, main="Cluster 6 MSE")
 ```
 
-6.  Coding for Random Forest
+7.  Coding for Random Forest
 
 ```{r,message=FALSE}
 library(randomForest)
@@ -2105,7 +2113,7 @@ length(Cl4_Qlike) = 500
 length(Cl5_Qlike) = 500
 ```
 
-7. Shiny App code
+8. Shiny App code
 
 ```{r}
 library(shiny)
@@ -2402,3 +2410,5 @@ shinyApp(ui = ui, server = server)
 Shiny App link:
 
 https://alanx.shinyapps.io/Optiver_13_Shiny/
+
+
