@@ -353,9 +353,9 @@ for (j in 1:length(data_frames)) {
 
 
 ```{r}
-MSE = vector("list", 30)
-QLIKE = vector("list", 30)
-R_square = vector("list", 30)
+MSE = vector("list", 1)
+QLIKE = vector("list", 1)
+R_square = vector("list", 1)
 
 for (j in 1:length(data_frames)) {
   
@@ -382,65 +382,18 @@ for (j in 1:length(data_frames)) {
 ```
 
 
-
 ```{r}
-Cl1_MSE <- c(MSE[[1]],MSE[[2]],MSE[[3]],MSE[[4]],MSE[[5]])
-Cl1_Qlike <- c(QLIKE[[1]],QLIKE[[2]],QLIKE[[3]],QLIKE[[4]],QLIKE[[5]])
-Cl2_MSE <- c(MSE[[6]],MSE[[7]],MSE[[8]],MSE[[9]],MSE[[10]])
-Cl2_Qlike <- c(QLIKE[[6]],QLIKE[[7]],QLIKE[[8]],QLIKE[[9]],QLIKE[[10]])
-Cl3_MSE <- c(MSE[[11]],MSE[[12]],MSE[[13]],MSE[[14]],MSE[[15]])
-Cl3_Qlike <- c(QLIKE[[11]],QLIKE[[12]],QLIKE[[13]],QLIKE[[14]],QLIKE[[15]])
-Cl4_MSE <- c(MSE[[16]],MSE[[17]],MSE[[18]],MSE[[19]],MSE[[20]])
-Cl4_Qlike <- c(QLIKE[[16]],QLIKE[[17]],QLIKE[[18]],QLIKE[[19]],QLIKE[[20]])
-Cl5_MSE <- c(MSE[[21]],MSE[[22]],MSE[[23]],MSE[[24]],MSE[[25]])
-Cl5_Qlike <- c(QLIKE[[21]],QLIKE[[22]],QLIKE[[23]],QLIKE[[24]],QLIKE[[25]])
-Cl6_MSE <- c(MSE[[26]],MSE[[27]],MSE[[28]],MSE[[29]],MSE[[30]])
-Cl6_Qlike <- c(QLIKE[[26]],QLIKE[[27]],QLIKE[[28]],QLIKE[[29]],QLIKE[[30]])
-```
-
-```{r}
-Cl1_rsq <- c(R_square[[1]],R_square[[2]],R_square[[3]],R_square[[4]],R_square[[5]])
-Cl2_rsq <- c(R_square[[6]],R_square[[7]],R_square[[8]],R_square[[9]],R_square[[10]])
-Cl3_rsq <- c(R_square[[11]],R_square[[12]],R_square[[13]],R_square[[14]],R_square[[15]])
-Cl4_rsq <- c(R_square[[16]],R_square[[17]],R_square[[18]],R_square[[19]],R_square[[20]])
-Cl5_rsq <- c(R_square[[21]],R_square[[22]],R_square[[23]],R_square[[24]],R_square[[25]])
-Cl6_rsq <- c(R_square[[26]],R_square[[27]],R_square[[28]],R_square[[29]],R_square[[30]])
+boxplot(MSE[[1]],horizontal = TRUE , main = "Random Forest MSE")
+boxplot(QLIKE[[1]], horizontal = TRUE, main = "Random Forest QLIKE")
 ```
 
 
 ```{r}
-length(Cl4_Qlike) = 500
-length(Cl5_Qlike) = 500
+plot(MSE[[1]], type = 'l', ylab = "MSE", xlab = "Stocks")
 ```
 
 
 ```{r,warning=FALSE}
-boxplot(Cl2_MSE,horizontal = TRUE , main = "Random Forest MSE")
-boxplot(Cl2_Qlike, horizontal = TRUE, main = "Random Forest QLIKE")
+plot(QLIKE[[1]], type = 'l',ylim = c(0,8) ,ylab = "Qlike", xlab = "Stocks")
 ```
-
-
-```{r}
-plot(Cl1_MSE, type = 'l', ylab = "MSE", xlab = "Stocks")#ylim = c(0,3e-05)
-#lines(Cl2_MSE, col = "red")
-#lines(Cl3_MSE, col = "blue")
-#lines(Cl4_MSE, col = "green")
-#lines(Cl5_MSE, col = "orange")
-#lines(Cl6_MSE, col = "pink")
-```
-
-
-```{r}
-plot(Cl1_Qlike, type = 'l',ylim = c(0,8) ,ylab = "Qlike", xlab = "Stocks")
-lines(Cl2_Qlike, col = "red")
-lines(Cl3_Qlike, col = "blue")
-lines(Cl4_Qlike, col = "green")
-lines(Cl5_Qlike, col = "orange")
-lines(Cl6_Qlike, col = "pink")
-```
-
-```{r}
-boxplot(Cl1_MSE,Cl2_MSE,Cl3_MSE,Cl4_MSE,Cl5_MSE,Cl6_MSE,horizontal = TRUE , main = "Random Forest MSE", ylab = "Clusters",xlab = "MSE value", names=c("Cl 1", "Cl 2", "Cl 3", "Cl 4", "Cl 5", "Cl 6"))
-```
-
 
