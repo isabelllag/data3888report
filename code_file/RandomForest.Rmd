@@ -17,40 +17,13 @@ library(dplyr)
 library(ggplot2)
 ```
 
-```{r}
-folder_path = "/Users/cco/Desktop/individual_book_train"
-Alldata = list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
-```
-
 
 ```{r}
+# Read files function
 read_csv_file <- function(file) {
   read_csv(file, col_types = cols())
 }
 ```
-
-```{r}
-liquility = NA
-
-for (i in 1:length(Alldata)){
-  data <- lapply(Alldata[i], read_csv_file)[[1]]
-  liquility[i] = sum(data$bid_size1)
-}
-```
-
-
-```{r}
-inx = which.max(liquility)
-stock7 = lapply(Alldata[inx], read_csv_file)[[1]]
-stock7
-```
-
-```{r, message=FALSE}
-stock21 = read_csv("/Users/cco/Desktop/individual_book_train/stock_21.csv")
-stock7 = read_csv("/Users/cco/Desktop/individual_book_train/stock_7.csv")
-```
-
-
 
 
 ```{r,message=FALSE}
@@ -62,7 +35,7 @@ stock_names
 ```
 
 ```{r}
-
+Generate path
 path <- "/Users/cco/Desktop/individual_book_train/"
 files <- paste0(path, stock_names)
 
@@ -70,6 +43,7 @@ files <- paste0(path, stock_names)
 
 
 ```{r,message=FALSE}
+#Read all stocks
 data_frames <- lapply(files, function(file) {
   cat("Reading file:", file, "\n")
   read_csv(file)
@@ -78,6 +52,7 @@ data_frames <- lapply(files, function(file) {
 
 
 ```{r}
+# calculate WAP
 for (i in 1:length(data_frames)) {
   
   stocki = data_frames[[i]]
@@ -200,7 +175,7 @@ for (i in 1:length(data_frames)) {
 
 
 ```{r}
-
+#Calculate the volatility
 Volatility_t = list()
 
 for (j in 1:length(data_frames)) {
@@ -318,11 +293,6 @@ for (j in 1:length(data_frames)) {
 
 ```
 
-```{r}
-print(Model[[29]][[100]])
-```
-
-
 
 ```{r}
 set.seed(3888)
@@ -396,6 +366,8 @@ legend("topright",
 
 
 ```{r}
+#Calculate evaluation values
+
 MSE = vector("list", 30)
 QLIKE = vector("list", 30)
 R_square = vector("list", 30)
@@ -424,13 +396,9 @@ for (j in 1:length(data_frames)) {
 }
 ```
 
-```{r}
-length(MSE)
-```
-
-
 
 ```{r}
+#Seperate clusters
 Cl1_MSE <- c(MSE[[1]],MSE[[2]],MSE[[3]],MSE[[4]],MSE[[5]])
 Cl1_Qlike <- c(QLIKE[[1]],QLIKE[[2]],QLIKE[[3]],QLIKE[[4]],QLIKE[[5]])
 Cl2_MSE <- c(MSE[[6]],MSE[[7]],MSE[[8]],MSE[[9]],MSE[[10]])
@@ -489,19 +457,3 @@ lines(Cl6_Qlike, col = "pink")
 ```{r}
 boxplot(Cl1_MSE,Cl2_MSE,Cl3_MSE,Cl4_MSE,Cl5_MSE,Cl6_MSE,horizontal = TRUE , main = "Random Forest MSE", ylab = "Clusters",xlab = "MSE value", names=c("Cl 1", "Cl 2", "Cl 3", "Cl 4", "Cl 5", "Cl 6"))
 ```
-
-```{r}
-length(Cl1_rsq)
-```
-
-
-
-```{r}
-df <- data.frame("Cluster1" = Cl1_MSE, "Cluster2" = Cl2_MSE, "Cluster3" = Cl3_MSE, "Cluster4" = Cl4_MSE, "Cluster5" = Cl5_MSE, "Cluster6" = Cl6_MSE)
-df2 <- data.frame("Cluster1" = Cl1_Qlike, "Cluster2" = Cl2_Qlike, "Cluster3" = Cl3_Qlike, "Cluster4" = Cl4_Qlike, "Cluster5" = Cl5_Qlike, "Cluster6" = Cl6_Qlike)
-df3 <- data.frame("Cluster1" = Cl1_rsq, "Cluster2" = Cl2_rsq, "Cluster3" = Cl3_rsq, "Cluster4" = Cl4_rsq, "Cluster5" = Cl5_rsq, "Cluster6" = Cl6_rsq)
-write_csv(df, file = "RandomForest MSE")
-write_csv(df2, file = "RandomForest Qlike.csv")
-write_csv(df3, file = "RandomForest R-square.csv")
-```
-
