@@ -1786,7 +1786,7 @@ stock_names = data_clust$Stocks
 stock_names = c(stock_names, "stock_31.csv", "stock_32.csv","stock_77.csv","stock_108.csv","stock_41.csv")
 stock_names
 
-Generate path
+#Generate path
 path <- "/Users/cco/Desktop/individual_book_train/"
 files <- paste0(path, stock_names)
 
