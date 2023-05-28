@@ -4,6 +4,12 @@ format: html
 editor: visual
 ---
 
+## Executive Summary
+
+The purpose of this project is to develop a model that accurately predicts volatility and to explain the model clearly to traders at Optiver. Our project has two key results. First, we found that SVM(Support Vector Machine) is most accurate for predicting the future volatility of most stocks, although ridge regression also performs well. Second, we deployed an interactive Shiny App to effectively communicate our results to traders.
+
+This project is practically relevant because volatility is an essential component of the Black-Scholes equation, which is important for options pricing. Therefore, our results on optimizing model accuracy and improving model communication can help traders to make effective trading strategies.
+
 ## Aim and Background
 
 **Aim**
