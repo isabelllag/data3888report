@@ -810,21 +810,21 @@ for(i in 1 : length(stock_file1)){
   sample_time_id = sample(time_IDs, 100, replace = FALSE)
   
   for (a in 1 : length(sample_time_id)) {
-    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket)
     BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
     #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
     order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
     price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
-    log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
     log_r1[[a]] <- data.frame(time = sec[-1], 
                               price = price[-1], 
                               BidAskSpread1= BS1[-1], 
                               #BidAskSpread2 = BS2[-1],
                               num_order = order[-1],
-                              log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+                              log_return = log_r)
     
     time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
-    if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+    if (length(time.no.change) > 0) { 
       new.df <- data.frame(time = time.no.change, price = 0, 
                            BidAskSpread1 = 0, 
                            #BidAskSpread2 = 0, 
@@ -924,21 +924,21 @@ for(i in 1 : length(stock_file2)){
   sample_time_id = sample(time_IDs, 100, replace = FALSE)
   
   for (a in 1 : length(sample_time_id)) {
-    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket)
     BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
     #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
     order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
     price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
-    log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
     log_r1[[a]] <- data.frame(time = sec[-1], 
                               price = price[-1], 
                               BidAskSpread1= BS1[-1] , 
                               #BidAskSpread2 = BS2[-1],
                               num_order = order[-1] ,
-                              log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+                              log_return = log_r)
     
     time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
-    if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+    if (length(time.no.change) > 0) {
       new.df <- data.frame(time = time.no.change, 
                            price = 0, 
                            BidAskSpread1 = 0, 
@@ -1054,21 +1054,21 @@ for(i in 1 : length(stock_file3)){
   sample_time_id = sample(time_IDs, 100, replace = FALSE)
   
   for (a in 1 : length(sample_time_id)) {
-    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id 
     BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
     #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
     order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
     price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
-    log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
     log_r1[[a]] <- data.frame(time = sec[-1], 
                               price = price[-1], 
                               BidAskSpread1= BS1[-1], 
                               #BidAskSpread2 = BS2[-1],
                               num_order = order[-1],
-                              log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+                              log_return = log_r)
     
     time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
-    if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+    if (length(time.no.change) > 0) {
       new.df <- data.frame(time = time.no.change, 
                            price = 0, 
                            BidAskSpread1 = 0, 
@@ -1161,21 +1161,21 @@ for(i in 1 : length(stock_file4)){
   sample_time_id = sample(time_IDs, 100, replace = FALSE)
   
   for (a in 1 : length(sample_time_id)) {
-    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id
     BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
     #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
     order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
     price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
-    log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
     log_r1[[a]] <- data.frame(time = sec[-1], 
                               price = price[-1], 
                               BidAskSpread1= BS1[-1], 
                               #BidAskSpread2 = BS2[-1],
                               num_order = order[-1],
-                              log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+                              log_return = log_r)
     
     time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
-    if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+    if (length(time.no.change) > 0) {
       new.df <- data.frame(time = time.no.change, 
                            price = 0, 
                            BidAskSpread1 = 0, 
@@ -1269,21 +1269,21 @@ for(i in 1 : length(stock_file5)){
   sample_time_id = sample(time_IDs, 100, replace = FALSE)
   
   for (a in 1 : length(sample_time_id)) {
-    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id 
     BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
     #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
     order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
     price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
-    log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
     log_r1[[a]] <- data.frame(time = sec[-1], 
                               price = price[-1], 
                               BidAskSpread1= BS1[-1], 
                               #BidAskSpread2 = BS2[-1],
                               num_order = order[-1],
-                              log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+                              log_return = log_r)
     
     time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
-    if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+    if (length(time.no.change) > 0) {
       new.df <- data.frame(time = time.no.change, 
                            price = 0, 
                            BidAskSpread1 = 0, 
@@ -1380,21 +1380,21 @@ for(i in 1 : length(stock_file6)){
   sample_time_id = sample(time_IDs, 100, replace = FALSE)
   
   for (a in 1 : length(sample_time_id)) {
-    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+    sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id 
     BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
     #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
     order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
     price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
-    log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+    log_r <- log(price[-1] / price[1:(length(price) - 1)])
     log_r1[[a]] <- data.frame(time = sec[-1], 
                               price = price[-1], 
                               BidAskSpread1= BS1[-1], 
                               #BidAskSpread2 = BS2[-1],
                               num_order = order[-1],
-                              log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+                              log_return = log_r)
     
     time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
-    if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+    if (length(time.no.change) > 0) {
       new.df <- data.frame(time = time.no.change, 
                            price = 0, 
                            BidAskSpread1 = 0, 
@@ -1865,11 +1865,6 @@ for (j in 1:length(data_frames)) {
 
 }
 
-# plot for first time id 
-ggplot(data = Volatility[[30]][[99]], aes(x = time_bucket, y = volatility)) + geom_line() + geom_point()
-```
-
-```{r}
 set.seed(3888)
 
 Logr_stocks_t = list()
