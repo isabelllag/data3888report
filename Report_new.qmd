@@ -103,7 +103,7 @@ That's the mean of the RMSE of each model in each cluster. More information coul
 | Random Forest    | 0.000651958 | 4.27E-04    | 4.30E-04    | 7.86E-04    | 5.87E-04    | 6.07E-04    |
 | HAV-RV           | 0.000788709 | 0.000546498 | 0.000570423 | 0.001038327 | 0.000775287 | 0.000700853 |
 
-```{r, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 library(readxl)
 library(tidyverse)
 # Read excel file that contains RMSEs for each model in a cluster
@@ -140,7 +140,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
 
 Also, We test the training time for each model using the same test data.
 
-```{r}
+```{r, echo=FALSE, eval=FALSE, warning=FALSE, message=FALSE}
 rt <- read.csv('./dataset/result/All_Running_time.csv')
 
 SVM <- rt[1,1]
@@ -207,12 +207,7 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-Aim & background: Baiyu 
-Method A: everyone (do own model)
-Method B: Isabella
-Results A: Derek & Tom
-Results B: Yuxiang 
-Discussion and conclusion: Alan
+Aim & background: Baiyu Method A: everyone (do own model) Method B: Isabella Results A: Derek & Tom Results B: Yuxiang Discussion and conclusion: Alan
 
 ## References
 
