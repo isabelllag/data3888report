@@ -68,7 +68,13 @@ A random forest model works by creating many decision trees, each of which is tr
 
 The reasons why the Random Forest model was chosen for this project are robustness and flexibility. Random Forests are less likely to overfit the data compared to individual decision trees because they average the results of many different trees. Random Forest can handle both linear and non-linear relationships between predictors and the target variable, which is useful because the relationship between various factors and market volatility might not always be linear.
 
-### B. Interdisciplinary Perspective
+### B.  **Relevance to Industry Partner**
+
+Predicting volatility is relevant to Optiver because volatility is an important element in the Black-Scholes equation, which is used for options pricing, as well as for understanding risk. 
+
+ARMA-GARCH, HAR-RV and regression are conventionally used in the trading industry to predict volatility (cite). It was therefore relevant to Optiver to build and evaluate these models to either affirm or challenge their use by the firm, and to communicate these common models to traders. SVM, Random Forest, and LSTM are less commonly used; therefore, evaluating them and communicating them to traders was relevant to Optiver because there was scope to innovate upon the conventional models used in finance. 
+
+Comparing a variety of models was relevant to Optiver because not only did it mean developing and explaining models to traders, but justifying them on the basis of their accuracy and time cost. The value of this method is that it enables traders to feel more confident in accepting the model as the optimal to use. Time was a particularly important evaluative element because traders must make decisions quickly in real-time; models with long runtimes, regardless of their accuracy, would be impractical for most trading environments. 
 
 ## Results
 
@@ -174,15 +180,13 @@ We believe that these future works will improve our model performance.
 
 ## References
 
-[1] Ben R. Marshall, Martin Young  Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market  (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
- 
-[2] ALLAUDEEN HAMEED, WENJIN KANG, S. VISWANATHAN Stock Market Declines and Liquidity (2010) https://doi.org/10.1111/j.1540-6261.2009.01529.x 
- 
-[3] Hong Zhang, Yaobin Lu, Sumeet Gupta, Ling Zhao What motivates customers to participate in social commerce? The impact of technological environments and virtual customer experiences (2014) https://doi.org/10.1016/j.im.2014.07.005
+\[1\] Ben R. Marshall, Martin Young Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
 
+\[2\] ALLAUDEEN HAMEED, WENJIN KANG, S. VISWANATHAN Stock Market Declines and Liquidity (2010) https://doi.org/10.1111/j.1540-6261.2009.01529.x
 
-Wei Liu and Bruce Morley, ‘Volatility in the Hang Seng Index using the GARCH Approach’, Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4 
+\[3\] Hong Zhang, Yaobin Lu, Sumeet Gupta, Ling Zhao What motivates customers to participate in social commerce? The impact of technological environments and virtual customer experiences (2014) https://doi.org/10.1016/j.im.2014.07.005
 
+Wei Liu and Bruce Morley, 'Volatility in the Hang Seng Index using the GARCH Approach', Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4
 
 ## Appendix
 
