@@ -1672,7 +1672,7 @@ for (i in 1:50){
 boxplot(RMSE)
 ```
 
-<<<<<<< HEAD
+
 5.   Coding for ARMAGARCH model
 
 ```{r, echo=FALSE}
@@ -1760,94 +1760,4 @@ boxplot(cluster3_mse, main="Cluster 3 MSE")
 boxplot(cluster4_mse, main="Cluster 4 MSE")
 boxplot(cluster5_mse, main="Cluster 5 MSE")
 boxplot(cluster6_mse, main="Cluster 6 MSE")
-=======
-5.  Coding for ARMA-GARCH
 
-```{r}
-    #helper function, computes vol
-    comp_vol <- function(x) {
-      return(sqrt(sum(x ^ 2)))
-    }
-
-    #function, input is stock, output is mse.ag
-    arma_mse <- function(stock){
-      #calculate WAP and bid ask spread
-      stock <- stock %>% mutate(
-        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1)
-        ) %>% mutate(
-        BidAskSpread = ask_price1 / bid_price1 - 1)
-      
-      #compute vol and log_r1
-      log_r1 <- list()
-      time_IDs <- unique(stock[, 1])[1:500]
-      for (i in 1 : length(time_IDs)) {
-      sec <- stock %>% filter(time_id == time_IDs[i]) %>% pull(seconds_in_bucket)
-      price <- stock %>% filter(time_id == time_IDs[i]) %>% pull(WAP)
-      log_r <- log(price[-1] / price[1:(length(price) - 1)])
-      log_r1[[i]] <- data.frame(time = sec[-1], log_return = log_r)
-      time.no.change <- (1:600)[!(1:600 %in% log_r1[[i]]$time)]
-      if (length(time.no.change) > 0) {
-        new.df <- data.frame(time = time.no.change, log_return = 0)
-        log_r1[[i]] <- rbind(log_r1[[i]], new.df)
-        log_r1[[i]] <- log_r1[[i]][order(log_r1[[i]]$time), ]
-      }
-      }
-      vol <- list()
-      for (i in 1 : length(log_r1)) {
-      log_r1[[i]] <- log_r1[[i]] %>% mutate(time_bucket = ceiling(time / 30))
-      vol[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_vol)
-      colnames(vol[[i]]) <- c('time_bucket', 'volatility')
-      }
-      
-      #build model
-      spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)), 
-                       mean.model = list(armaOrder = c(1, 1)), 
-                       distribution.model = "norm")
-      ARMA_GARCH.models <- list()
-      
-      for (i in 1 : length(vol)) {
-      ARMA_GARCH.models[[i]] <- ugarchfit(spec = spec, data = log_r1[[i]] %>% 
-                                            filter(time <= 480) %>% pull(log_return),
-                                          solver = 'hybrid')
-      }
-      
-      #make predictions
-      RV.pred <- rep(0, length(vol))
-      for (i in 1 : length(vol)) {
-      fspec <- getspec(ARMA_GARCH.models[[i]])
-      setfixed(fspec) <- as.list(coef(ARMA_GARCH.models[[i]]))
-      future.path <- fitted(ugarchpath(fspec, n.sim = 30, m.sim = 1000))
-      future.path[is.na(future.path)] <- 0 #replace NAs with 0
-      RV.pred[i] <- mean(sqrt(colSums(future.path ^ 2)))
-      }
-      
-      #calculate MSE and QLIKE
-      MSE.ag <- vector()
-      QLIKE.ag <- vector()
-      for (i in 1:length(vol)){
-      MSE.ag <- c(MSE.ag, mean((vol[[i]]$volatility - RV.pred[[i]]) ^ 2))
-      QLIKE.ag <- c(QLIKE.ag, mean(vol[[i]]$volatility / RV.pred[[i]] - 
-                                     log(vol[[i]]$volatility / RV.pred[[i]]) - 1))
-      }
-      MSE.ag
-    }
-```
-
-```{r}
-    #calculate MSE for each cluster
-    cluster1_mse = c(arma_mse(stock67), arma_mse(stock70), arma_mse(stock2), arma_mse(stock81), arma_mse(stock52))
-    cluster2_mse = c(arma_mse(stock86), arma_mse(stock43), arma_mse(stock29), arma_mse(stock13), arma_mse(stock124))
-    cluster3_mse = c(arma_mse(stock111), arma_mse(stock21), arma_mse(stock47))
-    cluster4_mse = c(arma_mse(stock15), arma_mse(stock38), arma_mse(stock101), arma_mse(stock98), arma_mse(stock109))
-    cluster5_mse = c(arma_mse(stock123), arma_mse(stock74), arma_mse(stock105), arma_mse(stock85), arma_mse(stock63))
-    cluster6_mse <- c(arma_mse(stock31), arma_mse(stock32), arma_mse(stock77), arma_mse(stock108), arma_mse(stock41))
-
-    #boxplots of MSE
-    par(mfrow = c(2, 3))
-    boxplot(cluster1_mse, main="Cluster 1 MSE")
-    boxplot(cluster2_mse, main="Cluster 2 MSE")
-    boxplot(cluster3_mse, main="Cluster 3 MSE")
-    boxplot(cluster4_mse, main="Cluster 4 MSE")
-    boxplot(cluster5_mse, main="Cluster 5 MSE")
-    boxplot(cluster6_mse, main="Cluster 6 MSE")
-```
