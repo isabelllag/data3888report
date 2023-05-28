@@ -18,7 +18,7 @@ This project requires both finance and data science knowledge. From the financia
 
 **Motivational background**
 
-For any complex models, there is necessarily a tradeoff between predictive power and interpretability. Indeed, Optiver identifies such an issue, so they value a model\'s interpretability as much as its performance. Consequently, Optiver approached DATA3888 students to grapple with this tradeoff by developing a model to accurately predict volatility, and also effectively communicating that model to traders. \
+For any complex models, there is necessarily a tradeoff between predictive power and interpretability. Indeed, Optiver identifies such an issue, so they value a model's interpretability as much as its performance. Consequently, Optiver approached DATA3888 students to grapple with this tradeoff by developing a model to accurately predict volatility, and also effectively communicating that model to traders. \
 
 Despite being a critical measure for trading, volatility is inherently difficult to predict. Traditional models like the GARCH model and its variants have limitations due to their assumptions and rigid structure. In this project, our group evaluated various models, from basic models like regression to deep learning models like LSTM, to find the best model for predicting volatility. At the same time, we are aware of the interpretability problem and aims to explain our model clearly.
 
@@ -49,7 +49,7 @@ The main assumption for the model is stationarity (see appendix). 
 
 **HAV-RV**
 
-The HAR-RV model (Heterogeneous Autoregressive Realized Volatility model) works directly on realized volatility to predict future volatility. Because this model is generally used for daily realized volatility while our data\'s time interval is much shorter, HAR-RV model in this project only serves as a benchmark. We used realized volatility for the previous time interval and the mean realized volatility for the past five time intervals to predict future volatility. Since stock datasets are highly complex, we used Weighted Least Square for prediction.
+The HAR-RV model (Heterogeneous Autoregressive Realized Volatility model) works directly on realized volatility to predict future volatility. Because this model is generally used for daily realized volatility while our data's time interval is much shorter, HAR-RV model in this project only serves as a benchmark. We used realized volatility for the previous time interval and the mean realized volatility for the past five time intervals to predict future volatility. Since stock datasets are highly complex, we used Weighted Least Square for prediction.
 
 **SVM**
 
@@ -133,6 +133,29 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
 
 Also, We test the training time for each model using the same test data.
 
+```{r}
+rt <- read.csv('./dataset/result/All_Running_time.csv')
+
+SVM <- rt[1,1]
+LM <- rt[2,1]
+MAR <- rt[3,1]
+LSTM <- rt[4,1]
+HAV <- rt[5,1]
+RF <- rt[6,1]
+
+runningtime <- c(SVM, LM, MAR, LSTM, HAV, RF)
+
+colors <- c("#000080", "#008000", "#FFA500", "#800000", "#FFC0CB", "#BBC0CB")
+
+barplot(runningtime, 
+        names.arg = c("SVM", "Ridge", "Armagarch", "LSTM", "HAV-RV", "RF"),
+        col = colors,
+        main = "Trining time for each model",
+        xlab = "Models",
+        ylab = "Time (seconds)",
+        width = 0.1)
+```
+
 Generally, SVM and Ridge Regression are good for the data. And if you need a shorter training time of the model, Ridge Regression could be a better choice.
 
 ### B. Deployment
@@ -153,11 +176,11 @@ over_bid = sum(bid_size1) +sum(bid_size2)-sum(ask_size1)-sum(ask_size2)
 
 volatility= √(〖sum(log⁡return)〗\^2 )
 
-Since time id\'s are not sequential while seconds in time id\'s are sequential, our group divided the time within a time id to time intervals and calculated volatilities for each time interval. Each time id is roughly 600 seconds, with each time interval 30 seconds. After training and testing the model, our group calculated RMSE based on their data and organised the results into box-plots that are categorized according to different clusters and models. (Formula of RMSE shown below):
+Since time id's are not sequential while seconds in time id's are sequential, our group divided the time within a time id to time intervals and calculated volatilities for each time interval. Each time id is roughly 600 seconds, with each time interval 30 seconds. After training and testing the model, our group calculated RMSE based on their data and organised the results into box-plots that are categorized according to different clusters and models. (Formula of RMSE shown below):
 
 RMSE= √(〖mean((predicted -actual)〗\^2)) 
 
-We communicate our group\'s product using R shiny app. Based on user\'s input, the app can display the RMSE boxplots of the 6 models for each cluster or a prediction vs actual plot of volatilises for the best model of the cluster. To help traders interpreting the model, we included a short description of the best model\'s working principles and justifications of why it is selected. Furthermore, the shiny app includes interactive feature that allows user to upload a stock csv file and predict volatilities immediately. The app will show the stock\'s liquidity, its assigned cluster based on liquidity, and using the best model for the particular cluster, our shiny app will produce a prediction vs actual plot generated from the selected model. This feature allows traders to directly assess our model\'s performance, thus assisting them to make decision on whether the model should be used.
+We communicate our group's product using R shiny app. Based on user's input, the app can display the RMSE boxplots of the 6 models for each cluster or a prediction vs actual plot of volatilises for the best model of the cluster. To help traders interpreting the model, we included a short description of the best model's working principles and justifications of why it is selected. Furthermore, the shiny app includes interactive feature that allows user to upload a stock csv file and predict volatilities immediately. The app will show the stock's liquidity, its assigned cluster based on liquidity, and using the best model for the particular cluster, our shiny app will produce a prediction vs actual plot generated from the selected model. This feature allows traders to directly assess our model's performance, thus assisting them to make decision on whether the model should be used.
 
 ## Discussion
 
