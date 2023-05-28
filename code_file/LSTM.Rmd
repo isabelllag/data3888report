@@ -1,0 +1,490 @@
+---
+title: "file"
+output: html_document
+date: "2023-05-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Library
+```{r, warning=FALSE, message=FALSE}
+library(keras)
+library(tensorflow)
+library(ggplot2)
+library(dplyr)
+library(caret)
+library(reshape2)
+library(tidyverse)
+```
+
+### Read data
+```{r}
+sample_select <- read.csv("dataset/sample_select.csv")
+```
+
+### get data from the csv file
+```{r}
+# Initialize a list to store the data from the X column files
+data_list <- list()
+
+# Loop through each row of the sample_select data frame
+for (i in 1:nrow(sample_select)) {
+  # Get the data path from the X column
+  path = paste("dataset/individual_book_train/", sample_select$X[i], sep = "")
+  
+  # Read the data from the data path
+  data <- read.csv(path)
+  
+  # Add the data and corresponding cluster value to the data_list
+  data_list[[i]] <- list(data = data, cluster = sample_select$cluster[i])
+}
+
+```
+
+### split the value into different cluster
+```{r}
+# Initialize an empty named list to store the merged data for each unique cluster
+unique_clusters <- unique(sample_select$cluster)
+merged_data_list <- setNames(lapply(unique_clusters, function(x) NULL), as.character(unique_clusters))
+
+# Loop through each data item in data_list
+for (i in 1:length(data_list)) {
+  # Get the cluster value
+  cluster <- data_list[[i]]$cluster
+
+  # Check if the current cluster data frame is empty in merged_data_list
+  if (is.null(merged_data_list[[as.character(cluster)]])) {
+    # Initialize the merged_data_list with the first data frame for the cluster
+    merged_data_list[[as.character(cluster)]] <- data_list[[i]]$data
+  } else {
+    # Merge the data using bind_rows()
+    merged_data_list[[as.character(cluster)]] <- bind_rows(merged_data_list[[as.character(cluster)]],
+                                                            data_list[[i]]$data)
+  }
+}
+
+```
+
+### randomly select the time id from each cluster
+```{r}
+#Cluster1
+set.seed(1)
+random_time_cluster1 <- sample(merged_data_list[[1]]$time_id, size = 100, replace = FALSE)
+
+## Cluster2 
+set.seed(2)
+random_time_cluster2 <- sample(merged_data_list[[2]]$time_id, size = 100, replace = FALSE)
+
+## Cluster3
+set.seed(3)
+random_time_cluster3 <- sample(merged_data_list[[3]]$time_id, size = 100, replace = FALSE)
+
+## Cluster4
+set.seed(4)
+random_time_cluster4 <- sample(merged_data_list[[4]]$time_id, size = 100, replace = FALSE)
+
+## Cluster5
+set.seed(5)
+random_time_cluster5 <- sample(merged_data_list[[5]]$time_id, size = 100, replace = FALSE)
+
+set.seed(6)
+random_time_cluster6 <- sample(merged_data_list[[6]]$time_id, size = 100, replace = FALSE)
+```
+
+### Select the value based on the time id
+```{r}
+get_data <- function(cluster_index, random_time_id) {
+  selected_cluster <- merged_data_list[[cluster_index]][merged_data_list[[cluster_index]]$time_id %in% random_time_id, ]
+  group_size <- 30
+  selected_rows_ <- selected_cluster %>%
+    mutate(group_id = (seconds_in_bucket) %/% group_size + 1)
+  
+  mean_cluster <- selected_rows_ %>%
+    group_by(stock_id, time_id, group_id) %>%
+    summarise(across(c("seconds_in_bucket", "bid_price1", "ask_price1", "bid_price2", "ask_price2", "bid_size1", "ask_size1", "bid_size2", "ask_size2", ), mean, na.rm = TRUE))
+  return(mean_cluster)
+}
+```
+
+### Get all the data for each cluster
+```{r}
+mean_cluster1 = get_data(1, random_time_cluster1)
+mean_cluster2 = get_data(2, random_time_cluster2)
+mean_cluster3 = get_data(3, random_time_cluster3)
+mean_cluster4 = get_data(4, random_time_cluster4)
+mean_cluster5 = get_data(5, random_time_cluster5)
+mean_cluster6 = get_data(6, random_time_cluster6)
+```
+
+### Load the data from file
+```{r}
+mean_cluster1 = read.csv("dataset/cluster1_data.csv")
+mean_cluster2 = read.csv("dataset/cluster2_data.csv")
+mean_cluster3 = read.csv("dataset/cluster3_data.csv")
+mean_cluster4 = read.csv("dataset/cluster4_data.csv")
+mean_cluster5 = read.csv("dataset/cluster5_data.csv")
+mean_cluster6 = read.csv("dataset/cluster6_data.csv")
+```
+
+### Data to File
+```{r}
+write.csv(mean_cluster1, "dataset/cluster1_data.csv", row.names=FALSE)
+write.csv(mean_cluster2, "dataset/cluster2_data.csv", row.names=FALSE)
+write.csv(mean_cluster3, "dataset/cluster3_data.csv", row.names=FALSE)
+write.csv(mean_cluster4, "dataset/cluster4_data.csv", row.names=FALSE)
+write.csv(mean_cluster5, "dataset/cluster5_data.csv", row.names=FALSE)
+write.csv(mean_cluster6, "dataset/cluster6_data.csv", row.names=FALSE)
+```
+
+
+### Calculate the volatility
+```{r}
+comp_vol <- function(x) {
+  return(sqrt(sum(x ^ 2)))
+}
+
+
+cal_vol <- function(df) {
+  # Calculate WAP
+  mean_cluster_copy <- df %>%
+    mutate(WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+  
+  # Calculate the log return of WAP
+  mean_cluster_copy <- mean_cluster_copy %>%
+    group_by(stock_id, time_id) %>%
+    mutate(LogReturn = c(0, diff(log(WAP)))) %>%
+    arrange(stock_id, time_id, group_id)
+  
+  # Calculate volatility
+  mean_cluster_copy <- mean_cluster_copy %>%
+    group_by(stock_id, time_id, group_id) %>%
+    mutate(Volatility = comp_vol(LogReturn))
+  return(mean_cluster_copy)
+}
+```
+
+###    Assign the volality value to each cluster
+```{r}
+cluster1_vol = cal_vol(mean_cluster1)
+cluster2_vol = cal_vol(mean_cluster2)
+cluster3_vol = cal_vol(mean_cluster3)
+cluster4_vol = cal_vol(mean_cluster4)
+cluster5_vol = cal_vol(mean_cluster5)
+cluster6_vol = cal_vol(mean_cluster6)
+```
+
+```{r}
+head(cluster1_vol)
+```
+
+
+### get the train data
+```{r}
+get_train_data <- function(df) {
+  set.seed(42)
+  split_index <- createDataPartition(df$Volatility, p = 0.8, list = FALSE, times = 1)
+  train_data <- df[split_index, ]
+  test_data <- df[-split_index, ]
+  
+  timesteps <- 1
+  n_features <- 5
+  x_train <- train_data[, c("LogReturn", "WAP", "bid_price1", "ask_size1", "bid_size1")]
+  y_train <- train_data[,"Volatility"]
+  x_train_array <- as.matrix(x_train)
+  y_train_array <- as.matrix(y_train)
+  x_train_reshaped <- array_reshape(x_train_array, c(nrow(x_train), timesteps, n_features))
+  
+  # Preprocess the test data
+  x_test <- test_data[, c("LogReturn", "WAP", "bid_price1", "ask_size1", "bid_size1")]
+  y_test <- test_data[,"Volatility"]
+  x_test_array <- as.matrix(x_test)
+  y_test_array <- as.matrix(y_test)
+  x_test_reshaped <- array_reshape(x_test_array, c(nrow(x_test), timesteps, n_features))
+  output <- list(train_data, test_data, x_train_reshaped, y_train_array, x_test_reshaped, y_test_array)
+  return(output)
+}
+```
+
+### Train and test data
+```{r}
+cluster1_output = get_train_data(cluster1_vol)
+cluster1_train = data.frame(cluster1_output[1])
+cluster1_test = data.frame(cluster1_output[2])
+cluster1_x_train = cluster1_output[3]
+cluster1_y_train = cluster1_output[4]
+cluster1_x_test = cluster1_output[5]
+cluster1_y_test = cluster1_output[6]
+```
+
+```{r}
+cluster2_output = get_train_data(cluster2_vol)
+cluster2_train = data.frame(cluster2_output[1])
+cluster2_test = data.frame(cluster2_output[2])
+cluster2_x_train = cluster2_output[3]
+cluster2_y_train = cluster2_output[4]
+cluster2_x_test = cluster2_output[5]
+cluster2_y_test = cluster2_output[6]
+```
+
+```{r}
+cluster3_output = get_train_data(cluster3_vol)
+cluster3_train = data.frame(cluster3_output[1])
+cluster3_test = data.frame(cluster3_output[2])
+cluster3_x_train = cluster3_output[3]
+cluster3_y_train = cluster3_output[4]
+cluster3_x_test = cluster3_output[5]
+cluster3_y_test = cluster3_output[6]
+```
+
+```{r}
+cluster4_output = get_train_data(cluster4_vol)
+cluster4_train = data.frame(cluster4_output[1])
+cluster4_test = data.frame(cluster4_output[2])
+cluster4_x_train = cluster4_output[3]
+cluster4_y_train = cluster4_output[4]
+cluster4_x_test = cluster4_output[5]
+cluster4_y_test = cluster4_output[6]
+```
+
+```{r}
+cluster5_output = get_train_data(cluster5_vol)
+cluster5_train = data.frame(cluster5_output[1])
+cluster5_test = data.frame(cluster5_output[2])
+cluster5_x_train = cluster5_output[3]
+cluster5_y_train = cluster5_output[4]
+cluster5_x_test = cluster5_output[5]
+cluster5_y_test = cluster5_output[6]
+```
+
+```{r}
+cluster6_output = get_train_data(cluster6_vol)
+cluster6_train = data.frame(cluster6_output[1])
+cluster6_test = data.frame(cluster6_output[2])
+cluster6_x_train = cluster6_output[3]
+cluster6_y_train = cluster6_output[4]
+cluster6_x_test = cluster6_output[5]
+cluster6_y_test = cluster6_output[6]
+```
+
+
+### Train the model with each cluster
+```{r}
+train_test_model <- function(test_data, x_train, y_train, x_test, y_test) {
+  # Define RMSE metric
+  rmse <- custom_metric("rmse", function(y_true, y_pred) {
+    k_sqrt(k_mean(k_square(y_pred - y_true), axis = -1L))
+  })
+  
+  # Specify model architecture
+  model <- keras_model_sequential() %>%
+    layer_lstm(units = 50, return_sequences = TRUE, input_shape = c(1, 5)) %>%
+    layer_lstm(units = 50) %>%
+    layer_dense(units = 1)
+  
+  # Compile the model
+  model %>% compile(
+    loss = 'mse',
+    optimizer = 'adam',
+    metrics = list("mean_absolute_error", rmse)
+  )
+  
+  
+  history <- model %>% fit(
+  x_train, y_train,
+  epochs = 10, batch_size = 2, 
+  validation_split = 0.2
+  )
+  predictions <- model %>% predict(x_test)
+
+  y_test <- unlist(y_test)
+  y_test <- as.numeric(y_test)
+  # Calculate MSE and RMSE
+  cluster_result <- data.frame(
+    MSE = (y_test - predictions) ^ 2,
+    RMSE = sqrt((y_test - predictions) ^ 2),
+    R_squared = cor(predictions, y_test)^2, 
+    qlike = mean(y_test/predictions - log(y_test/predictions) - 1)
+  )
+  # Add time_id and stock_id to results
+  cluster_result <- cluster_result %>%
+    mutate(time_id <- test_data$time_id)
+  cluster_result <- cluster_result %>%
+    mutate(stock_id <- test_data$stock_id)
+  print(cluster_result)
+  output <- list(cluster_result, model)
+  return(output)
+}
+```
+
+
+### Results of each cluster
+```{r}
+cluster1_start_time <- Sys.time()
+cluster1_result_output = train_test_model(cluster1_test, cluster1_x_train, cluster1_y_train, cluster1_x_test, cluster1_y_test)
+cluster1_result = data.frame(cluster1_result_output[1])
+cluster1_model = cluster1_result_output[2]
+cluster1_end_time <- Sys.time()
+cluster1_train_time <- cluster1_start_time - cluster1_end_time
+```
+```{r}
+cluster1_result
+```
+
+
+```{r}
+cluster2_start_time <- Sys.time()
+cluster2_result_output = train_test_model(cluster2_test, cluster2_x_train, cluster2_y_train, cluster2_x_test, cluster2_y_test)
+cluster2_result = data.frame(cluster2_result_output[1])
+cluster2_model = cluster2_result_output[2]
+cluster2_end_time <- Sys.time()
+cluster2_train_time <- cluster2_start_time - cluster2_end_time
+```
+
+```{r}
+cluster3_start_time <- Sys.time()
+cluster3_result_output = train_test_model(cluster3_test, cluster3_x_train, cluster3_y_train, cluster3_x_test, cluster3_y_test)
+cluster3_result = data.frame(cluster3_result_output[1])
+cluster3_model = cluster3_result_output[2]
+cluster3_end_time <- Sys.time()
+cluster3_train_time <- cluster3_start_time - cluster3_end_time
+```
+
+```{r}
+cluster4_start_time <- Sys.time()
+cluster4_result_output = train_test_model(cluster4_test, cluster4_x_train, cluster4_y_train, cluster4_x_test, cluster4_y_test)
+cluster4_result = data.frame(cluster4_result_output[1])
+cluster4_model = cluster4_result_output[2]
+cluster4_end_time <- Sys.time()
+cluster4_train_time <- cluster4_start_time - cluster4_end_time
+```
+
+```{r}
+cluster5_start_time <- Sys.time()
+cluster5_result_output = train_test_model(cluster5_test, cluster5_x_train, cluster5_y_train, cluster5_x_test, cluster5_y_test)
+cluster5_result = data.frame(cluster5_result_output[1])
+cluster5_model = cluster5_result_output[2]
+cluster5_end_time <- Sys.time()
+cluster5_train_time <- cluster5_start_time - cluster5_end_time
+```
+
+```{r}
+cluster6_start_time <- Sys.time()
+cluster6_result_output = train_test_model(cluster6_test, cluster6_x_train, cluster6_y_train, cluster6_x_test, cluster6_y_test)
+cluster6_result = data.frame(cluster6_result_output[1])
+cluster6_model = cluster6_result_output[2]
+cluster6_end_time <- Sys.time()
+cluster6_train_time <- cluster6_start_time - cluster6_end_time
+```
+
+### Results
+```{r}
+# Bind the data for all clusters together
+cluster1_result$cluster <- "cluster1"
+cluster2_result$cluster <- "cluster2"
+cluster3_result$cluster <- "cluster3"
+cluster4_result$cluster <- "cluster4"
+cluster5_result$cluster <- "cluster5"
+cluster6_result$cluster <- "cluster6"
+all_results <- rbind(cluster1_result, cluster2_result, cluster3_result, cluster4_result, cluster5_result, cluster6_result)
+
+# Reshape data to a long format
+all_results_long <- melt(all_results, id.vars = c("cluster"))
+
+# Create boxplot for MSE
+mse_results <- all_results_long[all_results_long$variable == "MSE", ]
+ggplot(mse_results, aes(x = cluster, y = value)) +
+  geom_boxplot() +
+  labs(x = "", y = "MSE", title = "Boxplot of MSE for All Clusters")
+
+# Create boxplot for RMSE
+rmse_results <- all_results_long[all_results_long$variable == "RMSE", ]
+ggplot(rmse_results, aes(x = cluster, y = value)) +
+  geom_boxplot() +
+  labs(x = "", y = "RMSE", title = "Boxplot of RMSE for All Clusters")
+```
+
+
+### Write the result to CSV file
+```{r}
+write.csv(cluster1_result, "result/cluster1_LSTM_rmse.csv", row.names=FALSE)
+write.csv(cluster2_result, "result/cluster2_LSTM_rmse.csv", row.names=FALSE)
+write.csv(cluster3_result, "result/cluster3_LSTM_rmse.csv", row.names=FALSE)
+write.csv(cluster4_result, "result/cluster4_LSTM_rmse.csv", row.names=FALSE)
+write.csv(cluster5_result, "result/cluster5_LSTM_rmse.csv", row.names=FALSE)
+```
+
+```{r}
+write.csv(cluster6_result, "result/cluster6_LSTM_rmse.csv", row.names=FALSE)
+```
+
+### Combine into one file
+```{r}
+all_results$qlike
+```
+
+```{r}
+new_df <- all_results %>%
+  select(cluster, RMSE) %>%
+  pivot_wider(names_from = cluster, values_from = RMSE)
+```
+```{r}
+
+# Create a unique identifier within each cluster
+group_cluster_results <- all_results %>%
+  group_by(cluster) %>%
+  mutate(id = row_number()) %>%
+  ungroup()
+
+# Pivot your dataframe
+RMSE_cluster_results <- group_cluster_results %>%
+  pivot_wider(names_from = cluster, values_from = RMSE, id_cols = id) %>%
+  select("cluster1", "cluster2", "cluster3", "cluster4", "cluster5", "cluster6")
+```
+
+```{r}
+RMSE_cluster_results
+```
+
+```{r}
+# Pivot your dataframe
+R_squared_cluster_results <- group_cluster_results %>%
+  pivot_wider(names_from = cluster, values_from = R_squared, id_cols = id) %>%
+  select("cluster1", "cluster2", "cluster3", "cluster4", "cluster5", "cluster6")
+R_squared_cluster_results
+```
+
+
+```{r}
+write.csv(RMSE_cluster_results, "result/all_cluster_LSTM.csv", row.names=FALSE)
+```
+
+
+### Cal R^2
+```{r}
+write.csv(R_squared_cluster_results, "result/LSTM_R_SQUARED.csv", row.names=FALSE)
+
+```
+
+
+### Draw a new graph
+```{r}
+stock_67_data <- cluster1_vol %>%
+  filter(stock_id == 67) %>%
+  
+```
+
+```{r}
+stock_67_output = get_train_data(stock_67_data)
+stock_67_train = data.frame(stock_67_output[1])
+stock_67_test = data.frame(stock_67_output[2])
+stock_67_x_train = stock_67_output[3]
+stock_67_y_train = stock_67_output[4]
+stock_67_x_test = stock_67_output[5]
+stock_67_y_test = stock_67_output[6]
+```
+
+
+
