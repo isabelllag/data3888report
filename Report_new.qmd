@@ -208,7 +208,10 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-Aim & background: Baiyu Method A: everyone (do own model) Method B: Isabella Results A: Derek & Tom Results B: Yuxiang Discussion and conclusion: Alan
+For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall MSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model.
+
+For this report, Baiyu responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results A part. Yuxiang responsible for Results B, and Discussion & Conclusion wrote by Alan. Everyone in the group wrote their own model description part in Method A.
+
 
 ## References
 
