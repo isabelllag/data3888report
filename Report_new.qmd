@@ -86,9 +86,9 @@ Comparing a variety of models was relevant to Optiver because not only did it me
 
 In the project, our group evaluated the performance of six distinct models across the six clusters of the stock data. We considered three potential evaluation metrics, which are Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, our group decided to use RMSE for evaluating model performance because RMSE gauges the mean square magnitude of errors, making it more sensitive to detect outliers. This characteristic is particularly valuable in analyzing financial data, which often harbors significant outliers and where the impact of errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors, which is less sensitive to outliers compared to RMSE. Such disadvantage also applies to R\^2.
 
-Besides, we also test the training time of each model. Since we can see that the RMSE boxes are similar for each model in our boxplot. Therefore shorter training time of a model could be better in the rapidly changing stock market.
+Our group tested the overall time required for each model to complete its prediction, and shorter time required is definitely an advantage in the rapidly evolving stock market.
 
-That's the mean of the RMSE of each model in each cluster. More information could be found in boxplots in the appendix. In this table, SVM and Ridge Regression performed better. But RMSE of SVM possessed a slightly dense distribution and fewer outliers in boxplots.
+In the table below, we show the mean RMSE values for each cluster and each model. More information can be found in boxplots in the appendix. In this table, SVM and Ridge Regression perform better, but RMSE of SVM possesse fewer outliers compared to Regression.
 
 |                  |             |             |             |             |             |             |
 |-----------|-----------|-----------|-----------|-----------|-----------|-----------|
@@ -135,7 +135,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
   )
 ```
 
-Also, We test the training time for each model using the same test data.
+We also tested the computation time of each model using the same stock csv file and showed our result in the below boxplot.
 
 ```{r}
 rt <- read.csv('./dataset/result/All_Running_time.csv')
@@ -160,7 +160,7 @@ barplot(runningtime,
         width = 0.1)
 ```
 
-Generally, SVM and Ridge Regression are good for the data. And if you need a shorter training time of the model, Ridge Regression could be a better choice.
+Generally, SVM and Ridge Regression performs best in terms of RMSE. If computation time is a concern, Ridge Regression could be a better choice.
 
 ### B. Deployment
 
