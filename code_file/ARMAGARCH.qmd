@@ -1,0 +1,250 @@
+---
+title: "ARMAGARCH"
+author: "Isabella Greenhalgh (510438353)"
+format: html
+editor: visual
+---
+
+## ARMA-GARCH
+
+A model for the variance of a time series.
+
+```{r message=FALSE}
+library(tidyverse)
+library(rugarch)
+library(plotly)
+liquidity_df <- read.csv("data/liquidity.csv") #import liquidity data
+clusters <- read.csv("data/sample select.csv") #import clustered data
+clusters %>% filter(cluster == 1) %>% pull(X)
+clusters %>% filter(cluster == 2) %>% pull(X)
+clusters %>% filter(cluster == 3) %>% pull(X)
+clusters %>% filter(cluster == 4) %>% pull(X)
+clusters %>% filter(cluster == 5) %>% pull(X)
+```
+
+```{r}
+#cluster 1
+stock67 <- read.csv("data/individual_book_train/stock_67.csv")
+stock70 <- read.csv("data/individual_book_train/stock_70.csv")
+stock2 <- read.csv("data/individual_book_train/stock_2.csv")
+stock81 <- read.csv("data/individual_book_train/stock_81.csv")
+stock52 <- read.csv("data/individual_book_train/stock_52.csv")
+#cluster 2
+stock86 <- read.csv("data/individual_book_train/stock_86.csv")
+stock43 <- read.csv("data/individual_book_train/stock_43.csv")
+stock29 <- read.csv("data/individual_book_train/stock_29.csv")
+stock13 <- read.csv("data/individual_book_train/stock_13.csv")
+stock124 <- read.csv("data/individual_book_train/stock_124.csv")
+#cluster 3
+stock111 <- read.csv("data/individual_book_train/stock_111.csv")
+stock21 <- read.csv("data/individual_book_train/stock_21.csv")
+stock47 <- read.csv("data/individual_book_train/stock_47.csv")
+stock35 <- read.csv("data/individual_book_train/stock_35.csv")
+stock46 <- read.csv("data/individual_book_train/stock_46.csv")
+#cluster 4
+stock15 <- read.csv("data/individual_book_train/stock_15.csv")
+stock38 <- read.csv("data/individual_book_train/stock_38.csv")
+stock101 <- read.csv("data/individual_book_train/stock_101.csv")
+stock98 <- read.csv("data/individual_book_train/stock_98.csv")
+stock109 <- read.csv("data/individual_book_train/stock_109.csv")
+#cluster 5
+stock123 <- read.csv("data/individual_book_train/stock_123.csv")
+stock74 <- read.csv("data/individual_book_train/stock_74.csv")
+stock105 <- read.csv("data/individual_book_train/stock_105.csv")
+stock85 <- read.csv("data/individual_book_train/stock_85.csv")
+stock63 <- read.csv("data/individual_book_train/stock_63.csv")
+#cluster 6
+stock31 <- read.csv("data/individual_book_train/stock_31.csv")
+stock32 <- read.csv("data/individual_book_train/stock_32.csv")
+stock77 <- read.csv("data/individual_book_train/stock_77.csv")
+stock108 <- read.csv("data/individual_book_train/stock_108.csv")
+stock41 <- read.csv("data/individual_book_train/stock_41.csv")
+```
+
+```{r}
+#helper function, computes vol
+comp_vol <- function(x) {
+  return(sqrt(sum(x ^ 2)))
+}
+
+#function, input is stock and timeid, output is mse.ag
+arma_mse <- function(stock){
+  #calculate WAP and bid ask spread
+  stock <- stock %>% mutate(
+    WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1)
+    ) %>% mutate(
+    BidAskSpread = ask_price1 / bid_price1 - 1)
+  
+  #compute vol and log_r1
+  
+  log_r1 <- list()
+  time_IDs <- unique(stock[, 1])[1:500]
+  for (i in 1 : length(time_IDs)) {
+  sec <- stock %>% filter(time_id == time_IDs[i]) %>% pull(seconds_in_bucket)
+  price <- stock %>% filter(time_id == time_IDs[i]) %>% pull(WAP)
+  log_r <- log(price[-1] / price[1:(length(price) - 1)])
+  log_r1[[i]] <- data.frame(time = sec[-1], log_return = log_r)
+  time.no.change <- (1:600)[!(1:600 %in% log_r1[[i]]$time)]
+  if (length(time.no.change) > 0) {
+    new.df <- data.frame(time = time.no.change, log_return = 0)
+    log_r1[[i]] <- rbind(log_r1[[i]], new.df)
+    log_r1[[i]] <- log_r1[[i]][order(log_r1[[i]]$time), ]
+  }
+  }
+  vol <- list()
+  for (i in 1 : length(log_r1)) {
+  log_r1[[i]] <- log_r1[[i]] %>% mutate(time_bucket = ceiling(time / 30))
+  vol[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_vol)
+  colnames(vol[[i]]) <- c('time_bucket', 'volatility')
+  }
+  
+  #build model
+  spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)), 
+                   mean.model = list(armaOrder = c(1, 1)), 
+                   distribution.model = "norm")
+  ARMA_GARCH.models <- list()
+  
+  for (i in 1 : length(vol)) {
+  ARMA_GARCH.models[[i]] <- ugarchfit(spec = spec, data = log_r1[[i]] %>% 
+                                        filter(time <= 480) %>% pull(log_return),
+                                      solver = 'hybrid')
+  }
+  
+  #make predictions
+  RV.pred <- rep(0, length(vol))
+  for (i in 1 : length(vol)) {
+  fspec <- getspec(ARMA_GARCH.models[[i]])
+  setfixed(fspec) <- as.list(coef(ARMA_GARCH.models[[i]]))
+  future.path <- fitted(ugarchpath(fspec, n.sim = 30, m.sim = 1000))
+  future.path[is.na(future.path)] <- 0 #replace NAs with 0
+  RV.pred[i] <- mean(sqrt(colSums(future.path ^ 2)))
+  }
+  
+  #calculate MSE and QLIKE
+  MSE.ag <- vector()
+  QLIKE.ag <- vector()
+  for (i in 1:length(vol)){
+  MSE.ag <- c(MSE.ag, mean((vol[[i]]$volatility - RV.pred[[i]]) ^ 2))
+  QLIKE.ag <- c(QLIKE.ag, mean(vol[[i]]$volatility / RV.pred[[i]] - 
+                                 log(vol[[i]]$volatility / RV.pred[[i]]) - 1))
+  }
+  MSE.ag
+}
+
+```
+
+```{r}
+make_plot <- function(stock){
+  #calculate WAP and bid ask spread
+  stock <- stock %>% mutate(
+    WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1)
+    ) %>% mutate(
+    BidAskSpread = ask_price1 / bid_price1 - 1)
+  
+  #compute vol and log_r1
+  
+  log_r1 <- list()
+  time_IDs <- unique(stock[, 1])[1:500]
+  for (i in 1 : length(time_IDs)) {
+  sec <- stock %>% filter(time_id == time_IDs[i]) %>% pull(seconds_in_bucket)
+  price <- stock %>% filter(time_id == time_IDs[i]) %>% pull(WAP)
+  log_r <- log(price[-1] / price[1:(length(price) - 1)])
+  log_r1[[i]] <- data.frame(time = sec[-1], log_return = log_r)
+  time.no.change <- (1:600)[!(1:600 %in% log_r1[[i]]$time)]
+  if (length(time.no.change) > 0) {
+    new.df <- data.frame(time = time.no.change, log_return = 0)
+    log_r1[[i]] <- rbind(log_r1[[i]], new.df)
+    log_r1[[i]] <- log_r1[[i]][order(log_r1[[i]]$time), ]
+  }
+  }
+  vol <- list()
+  for (i in 1 : length(log_r1)) {
+  log_r1[[i]] <- log_r1[[i]] %>% mutate(time_bucket = ceiling(time / 30))
+  vol[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_vol)
+  colnames(vol[[i]]) <- c('time_bucket', 'volatility')
+  }
+  
+  #build model
+  spec <- ugarchspec(variance.model = list(model = "sGARCH", garchOrder = c(1, 1)), 
+                   mean.model = list(armaOrder = c(1, 1)), 
+                   distribution.model = "norm")
+  ARMA_GARCH.models <- list()
+  
+  for (i in 1 : length(vol)) {
+  ARMA_GARCH.models[[i]] <- ugarchfit(spec = spec, data = log_r1[[i]] %>% 
+                                        filter(time <= 480) %>% pull(log_return),
+                                      solver = 'hybrid')
+  }
+  
+  #make predictions
+  RV.pred <- rep(0, length(vol))
+  for (i in 1 : length(vol)) {
+  fspec <- getspec(ARMA_GARCH.models[[i]])
+  setfixed(fspec) <- as.list(coef(ARMA_GARCH.models[[i]]))
+  future.path <- fitted(ugarchpath(fspec, n.sim = 30, m.sim = 1000))
+  future.path[is.na(future.path)] <- 0 #replace NAs with 0
+  RV.pred[i] <- mean(sqrt(colSums(future.path ^ 2)))
+  }
+  
+  #plot predictions
+  means <- vector()
+  for (i in 1:500){
+    means <- c(means, mean(vol[[i]]$volatility))
+  }
+  ggplot() + geom_line(data=data.frame(cbind(1:500, means)), aes(x=V1, y=means, col="actual")) + geom_line(data=data.frame(cbind(1:500, RV.pred)), aes(x=V1, y=RV.pred, col="predicted")) + ggtitle("Volatility actual and predicted using ARMA GARCH") + xlab("time") + ylab("volatility") + labs(colour="volatility type")
+  ggplotly()
+}
+```
+
+```{r}
+#example of make plot function
+make_plot(stock67)
+```
+
+```{r}
+#cluster 1 mse
+cluster1_mse = c(arma_mse(stock67), arma_mse(stock70), arma_mse(stock2), arma_mse(stock81), arma_mse(stock52))
+```
+
+```{r}
+#cluster 2 mse
+cluster2_mse = c(arma_mse(stock86), arma_mse(stock43), arma_mse(stock29), arma_mse(stock13), arma_mse(stock124))
+```
+
+```{r}
+#cluster 3 mse
+cluster3_mse = c(arma_mse(stock111), arma_mse(stock21), arma_mse(stock47))
+```
+
+```{r}
+#cluster 4 mse
+cluster4_mse = c(arma_mse(stock15), arma_mse(stock38), arma_mse(stock101), arma_mse(stock98), arma_mse(stock109))
+```
+
+```{r}
+#cluster 5 mse
+cluster5_mse = c(arma_mse(stock123), arma_mse(stock74), arma_mse(stock105), arma_mse(stock85), arma_mse(stock63))
+```
+
+```{r}
+#cluster 6 mse
+cluster6_mse <- c(arma_mse(stock31), arma_mse(stock32), arma_mse(stock77), arma_mse(stock108), arma_mse(stock41))
+```
+
+```{r}
+#mse boxplots
+par(mfrow = c(2, 3))
+boxplot(cluster1_mse, main="Cluster 1 MSE")
+boxplot(cluster2_mse, main="Cluster 2 MSE")
+boxplot(cluster3_mse, main="Cluster 3 MSE")
+boxplot(cluster4_mse, main="Cluster 4 MSE")
+boxplot(cluster5_mse, main="Cluster 5 MSE")
+boxplot(cluster6_mse, main="Cluster 6 MSE")
+```
+
+```{r}
+#testing runtime
+start <- Sys.time()
+cluster6 <- c(arma_mse(stock31), arma_mse(stock32), arma_mse(stock77), arma_mse(stock108), arma_mse(stock41))
+end <- Sys.time()
+```
