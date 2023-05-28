@@ -14,6 +14,8 @@ Our project has two key results. First, we found that SVM (Support Vector Machin
 
 This project is practically relevant because volatility is an essential component of the Black-Scholes equation, which is important for options pricing. Therefore, our results on optimizing model accuracy and improving model communication can help traders to make effective trading strategies.
 
+Our group put the GitHub link into Appendix.
+
 ## Aim and Background
 
 **Aim**
@@ -76,7 +78,7 @@ A random forest model works by creating many decision trees, each of which is tr
 
 Advantages of random forest include robustness and flexibility. Random forest is less likely to overfit because the model averages the results of many different trees. Random Forest can handle both linear and non-linear relationships between predictors and the target variable, which is useful because the relationship between various factors and market volatility is non-linear and highly complex.
 
-### B. **Relevance to Industry Partner**
+### B. Relevance to Industry Partner
 
 Predicting volatility is relevant to Optiver because volatility is an important element in the Black-Scholes equation, which is used for options pricing, as well as for understanding risk. 
 
@@ -108,7 +110,7 @@ In the table below, we show the mean RMSE values for each cluster and each model
 library(readxl)
 library(tidyverse)
 # Read excel file that contains RMSEs for each model in a cluster
-final <-  read_excel("./dataset/result/C2.xlsx")
+final <-  read_excel("C2.xlsx")
 # Transfer some MSE to RMSE
 final$LINEAR<- sqrt(final$LINEAR)
 final$RF <- sqrt(final$RF)
@@ -129,6 +131,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
   ) +
   labs(x = "Models", y = "Rmse") +
   ggtitle("Boxplot for cluster2") +
+  ggtitle("Boxplot for cluster2") +
   scale_fill_manual(values = colors) +
   theme_minimal() +
   theme(
@@ -142,7 +145,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
 We also tested the computation time of each model using the same stock csv file and showed our result in the below boxplot.
 
 ```{r, warning=FALSE, message=FALSE}
-rt <- read.csv('./dataset/result/All_Running_time.csv')
+rt <- read.csv('All_Running_time.csv')
 
 SVM <- rt[1,1]
 LM <- rt[2,1]
@@ -189,6 +192,8 @@ Since time id's are not sequential while seconds in time id's are sequential, ou
 RMSE= √(〖mean((predicted -actual)〗\^2)) 
 
 We communicate our group's product using R shiny app. Based on user's input, the app can display the RMSE boxplots of the 6 models for each cluster or a prediction vs actual plot of volatilises for the best model of the cluster. To help traders interpreting the model, we included a short description of the best model's working principles and justifications of why it is selected. Furthermore, the shiny app includes interactive feature that allows user to upload a stock csv file and predict volatilities immediately. The app will show the stock's liquidity, its assigned cluster based on liquidity, and using the best model for the particular cluster, our shiny app will produce a prediction vs actual plot generated from the selected model. This feature allows traders to directly assess our model's performance, thus assisting them to make decision on whether the model should be used.
+![shiny1](shiny1.png)
+![shiny2](shiny2.png)
 
 ## Discussion
 
@@ -208,10 +213,9 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall MSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model.
+For this project, Derek calculated the liquidity for the data clustering, Alan did the k-means clustering, and each group member trained a model for comparing. After every one got the results, Derek generated the overall RMSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model. Alan and Isabella did the shiny app.
 
-For this report, Baiyu responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results A part. Yuxiang responsible for Results B, and Discussion & Conclusion wrote by Alan. Everyone in the group wrote their own model description part in Method A.
-
+For this report, Baiyu is responsible for Aim & Background part. Isabella did the Method Part B. Derek and Tom completed the Results Part A. Yuxiang responsible for Results Part B, and Discussion & Conclusion is written by Alan. Everyone in the group wrote their own model description part in Method A.
 
 ## References
 
@@ -228,7 +232,6 @@ For this report, Baiyu responsible for Aim & background part. Isabella did the M
 ```{r}
 sessionInfo()
 ```
-1. Boxplots for each cluster
 
 ![Cluster1](figure1.png)
 ![Cluster2](figure2.png)
@@ -1791,7 +1794,7 @@ stock_names = data_clust$Stocks
 stock_names = c(stock_names, "stock_31.csv", "stock_32.csv","stock_77.csv","stock_108.csv","stock_41.csv")
 stock_names
 
-#Generate path
+##Generate path
 path <- "/Users/cco/Desktop/individual_book_train/"
 files <- paste0(path, stock_names)
 
@@ -2116,7 +2119,7 @@ length(Cl4_Qlike) = 500
 length(Cl5_Qlike) = 500
 ```
 
-8. Shiny App code
+8.  Shiny App code
 
 ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 library(shiny)
@@ -2410,8 +2413,10 @@ shinyApp(ui = ui, server = server)
 
 ```
 
-Shiny App link:
+9.  Shiny App link:
 
 https://alanx.shinyapps.io/Optiver_13_Shiny/
 
+10.  GitHub Link
 
+https://github.com/isabelllag/data3888report.git
