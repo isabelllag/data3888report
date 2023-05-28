@@ -4,43 +4,190 @@ format: html
 editor: visual
 ---
 
+## Executive Summary
+
+The purpose of this project is to develop a model that accurately predicts volatility and to explain the model clearly to traders at Optiver. Our project has two key results. First, we found that SVM(Support Vector Machine) is most accurate for predicting the future volatility of most stocks, although ridge regression also performs well. Second, we deployed an interactive Shiny App to effectively communicate our results to traders.
+
+This project is practically relevant because volatility is an essential component of the Black-Scholes equation, which is important for options pricing. Therefore, our results on optimizing model accuracy and improving model communication can help traders to make effective trading strategies.
+
 ## Aim and Background
 
 **Aim**
 
-Financial markets exhibit a high degree of uncertainty and risk, making it a challenging environment for both individual investors and financial institutions. Optiver, as a leading global market maker, specializes in creating fair, orderly, and efficient markets in a variety of financial instruments. One critical aspect that characterizes the behavior of these financial markets is 'volatility'. Volatility refers to the degree of variation observed in the price of a financial instrument over time and is a key measure of market risk.
+Volatility is the degree of variation observed in the price of a financial instrument over time and is a key measure of market risk. For any trading firm including Optiver, volatility is crucial in option pricing and trading strategies.
 
-The aim of this project is to find the model that offers the best tradeoff among accuracy, interpretability and robustness, and to investigate the effects that input stocks have on the model performance.
+The aim of this project is to find the model that offers the best tradeoff among prediction accuracy, model interpretability and model robustness, and to investigate the effects that input stocks have on model performance.
 
 **Multidisciplinarity**
 
-This project lies at the intersection of finance and data science. From the perspective of finance, understanding and predicting volatility is key to efficient portfolio management and risk mitigation. From the data science standpoint, this task represents a complex problem of time series prediction, which is generally characterized by non-linear, non-stationary, and potentially high-dimensional data. The development of a reliable volatility prediction model would therefore require a deep understanding of both these domains.
+This project requires both finance and data science knowledge. From the financial perspective, understanding and predicting volatility is critical for successful trading strategies. From the data science standpoint, predicting volatility is a complicated task involving time series prediction, which is generally characterized by non-linear, non-stationary, and potentially high-dimensional data. The development of a reliable volatility prediction model would therefore require a deep understanding of both of these domains.
 
 **Motivational background**
 
-When developing models to predict volatility, there is necessarily a tradeoff between predictive power and interpretability. Indeed, Optiver identified an issue with their capacity to encourage traders to use more complex volatility models, because traders struggled to understand and therefore implement those models. Consequently, Optiver approached DATA3888 students at the University of Sydney to grapple with this tradeoff by developing a model to predict volatility, and effectively communicating that model to traders. 
+For any complex models, there is necessarily a tradeoff between predictive power and interpretability. Indeed, Optiver identifies such an issue, so they value a model's interpretability as much as its performance. Consequently, Optiver approached DATA3888 students to grapple with this tradeoff by developing a model to accurately predict volatility, and also effectively communicating that model to traders. \
 
-As market makers, Optiver needs to quote prices at which they are willing to buy and sell financial instruments. These prices are largely influenced by the anticipated market volatility. High volatility increases the risk of market making and requires wider spreads, while low volatility allows for tighter spreads. Thus, the ability to accurately predict volatility is directly linked to Optiver's market making profitability.
+Despite being a critical measure for trading, volatility is inherently difficult to predict. Traditional models like the GARCH model and its variants have limitations due to their assumptions and rigid structure. In this project, our group evaluated various models, from basic models like regression to deep learning models like LSTM, to find the best model for predicting volatility. At the same time, we are aware of the interpretability problem and aims to explain our model clearly.
 
-Despite its significance, volatility is inherently unobservable and needs to be estimated from available market data. Traditional models like the GARCH model and its variants have limitations due to their assumptions and rigid structure. With the advent of machine learning techniques, there is potential to improve upon these traditional models by learning complex patterns from the data and offering superior predictive performance. Therefore, the generation of these models would represent a significant advancement in the profitability of the trading industry, and for Optiver in particular.
-
+\
 \
 
 ## Method
 
 ### A. Data Science Perspective
 
-### B. Interdisciplinary Perspective
+The data for this project is the relevant stock datasets provided by Optiver. Our stock data consists of price, volume and time variables, including bid price, ask price, bid size, ask size, time id and seconds in each time id. 
+
+After all models are trained, they were evaluated for their performance. This is done using a combination of graphical and quantitative method:
+
+1.  Graphical: The plots used for evaluation include actual v.s. predicted linear plots, box plots of RMSE for each cluster, QLIKE box plots for each cluster, and ACF plots. These graphics provide a visual indication of how well the model is performing.
+
+2.  Quantitative: Quantitative metrics provide a more direct assessment of the model's performance. For the task of predicting volatility, these might include metrics like Root Mean Squared Error (RMSE), and R-squared. 
+
+We developed six models in this project: ARMA-GARCH, HAV-RV, SVM, Ridge Regression, Random Forest and LSTM.
+
+**ARMA-GARCH**
+
+ARMA-GARCH models are a combination of Autoregressive Moving Average (ARMA) and Generalised Autoregressive Conditional Heteroskedasticity (GARCH) models. ARMA models consist of an autoregressive element, which predicts future values based on past values, and a moving average element, which takes into account the errors from previous predictions. GARCH models predict the volatility of a time series. 
+
+This model was chosen for this project because it is conventionally used by the finance industry to predict volatility. GARCH models with non-normal distributions are robust for predicting volatility (Liu and Morley).
+
+The main assumption for the model is stationarity (see appendix). 
+
+**HAV-RV**
+
+The HAR-RV model (Heterogeneous Autoregressive Realized Volatility model) works directly on realized volatility to predict future volatility. Because this model is generally used for daily realized volatility while our data's time interval is much shorter, HAR-RV model in this project only serves as a benchmark. We used realized volatility for the previous time interval and the mean realized volatility for the past five time intervals to predict future volatility. Since stock datasets are highly complex, we used Weighted Least Square for prediction.
+
+**SVM**
+
+SVM model performs well with highly complex data. Since stock datasets are complicated, our group believe that SVM is an important model to be evaluated. Choosing a suitable kernel is crucial for SVM's performance, and we chose Radial Basis Function (RBF) because this works well for non-linear and complex relationships, such as predicting volatility in our case. However, downsides of RBF includes overfitting and high training time, which are important aspects for evaluation. 
+
+**Ridge Regression**
+
+Ridge regression is a regularized linear regression method, which is part of the elastic network of the generalized linear regression model and controls model complexity by introducing an L2 regularization term. Unlike ordinary linear regression, ridge regression adds a regularization term to the objective function, which is the product of the sum of the squares of the coefficients and a regularization parameter lambda. Ridge regressions requires tuning parameters. The parameter lambda determines the strength of model regularization, and a larger lambda means a stronger regularization. When performing model tuning, different lambda values are usually tried, and the best lambda value is selected through methods such as cross-validation. This is to find a balance between bias and variance to obtain a model with better generalization ability.
+
+**LSTM**
+
+The LSTM (Long Short-Term Memory) deep learning model is a type of recurrent neural network designed to capture long-term dependencies in sequential data. LSTMs have memory cells controlled by input, forget and output gates. This model is chosen when long-term dependencies are important. For our implementation, we defined the layers and the corresponding parameters, chose the fitness loss function to the model, trained the model using training datasets and finally used the validation data to adjust the prediction value. After all the epochs (like the iterative times), the model is trained and ready to be used.
+
+**Random Forest**
+
+A random forest model works by creating many decision trees, each of which is trained on a different subset of the data. The randomness comes from both choosing the subsets of data and choosing the subsets of features used for splitting each node in the tree. When making a prediction, random forest feeds the input data to each of the decision trees in the forest. Each tree gives a prediction independently from the others and decide a final results based on these independent predictions. 
+
+Advantages of random forest include robustness and flexibility. Random forest is less likely to overfit because the model averages the results of many different trees. Random Forest can handle both linear and non-linear relationships between predictors and the target variable, which is useful because the relationship between various factors and market volatility is non-linear and highly complex.
+
+### B. **Relevance to Industry Partner**
+
+Predicting volatility is relevant to Optiver because volatility is an important element in the Black-Scholes equation, which is used for options pricing, as well as for understanding risk. 
+
+ARMA-GARCH, HAR-RV and regression are conventionally used in the trading industry to predict volatility (cite). It was therefore relevant to Optiver to build and evaluate these models to either affirm or challenge their use by the firm, and to communicate these common models to traders. SVM, Random Forest, and LSTM are less commonly used; therefore, evaluating them and communicating them to traders was relevant to Optiver because there was scope to innovate upon the conventional models used in finance. 
+
+Comparing a variety of models was relevant to Optiver because not only did it mean developing and explaining models to traders, but justifying them on the basis of their accuracy and time cost. The value of this method is that it enables traders to feel more confident in accepting the model as the optimal to use. Time was a particularly important evaluative element because traders must make decisions quickly in real-time; models with long runtimes, regardless of their accuracy, would be impractical for most trading environments. 
 
 ## Results
 
 ### A. Models
 
-In the project, we need to evaluate the effectiveness of six distinct models across the six clusters of the stock data. We considered different strategies to evaluate our models for each cluster. There are three metrics that  we plan to use. They are  Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, we decide to use RMSE to estimate the accuracy of our models instead of MAE and R\^2. RMSE gauges the mean square magnitude of errors, it is more sensitive to outliers. This characteristic is particularly salient in the realm of financial data, which often harbors significant outliers and where the impact of sizeable errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors,  it is less sensitive to outliers compared to RMSE. Also, we are not able to justify whether the error is positive or negative when we used MAE. But it is significant for volatility  to know its trends. These shortcomings also apply to R\^2. Even though R\^2  is good at providing  an overall measure of model fit, it fails to directly reflect the magnitude or direction of prediction errors.
+In the project, we need to evaluate the effectiveness of six distinct models across the six clusters of the stock data. We considered different strategies to evaluate our models for each cluster. There are three metrics that  we plan to use. They are  Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, we decide to use RMSE to estimate the accuracy of our models instead of MAE and R\^2. RMSE gauges the mean square magnitude of errors, it is more sensitive to outliers. This characteristic is particularly salient in the realm of financial data, which often harbors significant outliers and where the impact of sizable errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors,  it is less sensitive to outliers compared to RMSE. Also, we are not able to justify whether the error is positive or negative when we use MAE. But it is significant for volatility  to know its trends. These shortcomings also apply to R\^2. Even though R\^2  is good at providing  an overall measure of model fit, it fails to directly reflect the magnitude or direction of prediction errors.
 
 Besides, we also test the training time of each model. Since we can see that the RMSE boxes are similar for each model in our boxplot. Therefore shorter training time of a model could be better in the rapidly changing stock market.
 
+That's the mean of the RMSE of each model in each cluster. More information could be found in boxplots in the appendix. In this table, SVM and Ridge Regression performed better. But RMSE of SVM possessed a slightly dense distribution and fewer outliers in boxplots.
+
+|                  |             |             |             |             |             |             |
+|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
+|                  | Cluster1    | Cluster2    | Cluster3    | Cluster4    | Cluster5    | Cluster6    |
+| ARMA-GARCH       | 0.000397717 | 0.000397711 | 0.000397592 | 0.000397779 | 0.000397691 | 0.00049788  |
+| SVM              | 0.000234895 | 0.000138351 | 0.000160307 | 0.000325224 | 0.000228932 | 0.00017798  |
+| Ridge Regression | 0.000257502 | 0.000186632 | 1.80E-04    | 0.000314913 | 0.000248003 | 0.00026557  |
+| LSTM             | 0.000307353 | 0.000529648 | 0.000259467 | 0.000631368 | 0.001059554 | 0.001005189 |
+| Random Forest    | 0.000651958 | 4.27E-04    | 4.30E-04    | 7.86E-04    | 5.87E-04    | 6.07E-04    |
+| HAV-RV           | 0.000788709 | 0.000546498 | 0.000570423 | 0.001038327 | 0.000775287 | 0.000700853 |
+
+```{r, message=FALSE, warning=FALSE}
+library(readxl)
+library(tidyverse)
+# Read excel file that contains RMSEs for each model in a cluster
+final <-  read_excel("./dataset/result/C2.xlsx")
+# Transfer some MSE to RMSE
+final$LINEAR<- sqrt(final$LINEAR)
+final$RF <- sqrt(final$RF)
+# Process the data
+final1 <- gather(final)
+final1 <- na.omit(final1)
+# We need to do it in cluster 6 since there is a super high RMSE in it.
+d = which(final1$value == max(final1$value))
+final1 = final1[-d,]
+# Draw the boxplot
+colors <- c("#0072B2", "#E69F00", "#009E73", "#F0E442", "#D55E00", "#CC79A7")
+ggplot(final1, aes(x = key, y = value, fill = key)) +
+  geom_boxplot(
+    notch = TRUE,
+    outlier.color = "black",
+    outlier.shape = 16,
+    width = 0.5
+  ) +
+  labs(x = "Models", y = "Rmse") +
+  ggtitle("Boxplot for cluster6") +
+  scale_fill_manual(values = colors) +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 8),
+    legend.position = "none",
+    panel.background = element_rect(fill = "#F5F5F5")
+  )
+```
+
+Also, We test the training time for each model using the same test data.
+
+```{r}
+rt <- read.csv('./dataset/result/All_Running_time.csv')
+
+SVM <- rt[1,1]
+LM <- rt[2,1]
+MAR <- rt[3,1]
+LSTM <- rt[4,1]
+HAV <- rt[5,1]
+RF <- rt[6,1]
+
+runningtime <- c(SVM, LM, MAR, LSTM, HAV, RF)
+
+colors <- c("#000080", "#008000", "#FFA500", "#800000", "#FFC0CB", "#BBC0CB")
+
+barplot(runningtime, 
+        names.arg = c("SVM", "Ridge", "Armagarch", "LSTM", "HAV-RV", "RF"),
+        col = colors,
+        main = "Trining time for each model",
+        xlab = "Models",
+        ylab = "Time (seconds)",
+        width = 0.1)
+```
+
+Generally, SVM and Ridge Regression are good for the data. And if you need a shorter training time of the model, Ridge Regression could be a better choice.
+
 ### B. Deployment
+
+Before analyzing each stock data provided by Optiver, our group separated the datasets into different clusters. Because different stocks can have very different charateristics, clustering helps to identify these differences so that we can analyse the clusters individually and find the best model for a particular type of stock.  Given the financial nature of the datasets, our group decided to use liquidity - one of the most important metrics in stock trading - for clustering.\[1\] Liquidity measures how rapidly a stock can be bought or sold without significantly impacting its price, and we used the following formula to calculate liquidity:
+
+liquidity= sum(mean(bid_size1),mean(bid_size2),mean(ask_size1),mean(ask_size2))
+
+All data sets were clustered using liquidity as the metrics and K-means as the clustering method. We first selected 5 stocks with extremely high volatilities as outliers and categorised them into a separate cluster. Then, our group clustered the remaining stocks into 5 clusters, choosing 5 stocks from each cluster, for a total of 30 stocks to analyse. Besides the original variables, we also calculated WAP, Bidaskspread, number of orders, oversize and volatility (formulae below):
+
+WAP=(bid_price1 \* ask_size1 + ask_price1 \* bid_size1)/(bid_size1 + ask_size1))
+
+BidAskSpread = ask_price / bid_price-1
+
+num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2
+
+over_bid = sum(bid_size1) +sum(bid_size2)-sum(ask_size1)-sum(ask_size2)
+
+volatility= √(〖sum(log⁡return)〗\^2 )
+
+Since time id's are not sequential while seconds in time id's are sequential, our group divided the time within a time id to time intervals and calculated volatilities for each time interval. Each time id is roughly 600 seconds, with each time interval 30 seconds. After training and testing the model, our group calculated RMSE based on their data and organised the results into box-plots that are categorized according to different clusters and models. (Formula of RMSE shown below):
+
+RMSE= √(〖mean((predicted -actual)〗\^2)) 
+
+We communicate our group's product using R shiny app. Based on user's input, the app can display the RMSE boxplots of the 6 models for each cluster or a prediction vs actual plot of volatilises for the best model of the cluster. To help traders interpreting the model, we included a short description of the best model's working principles and justifications of why it is selected. Furthermore, the shiny app includes interactive feature that allows user to upload a stock csv file and predict volatilities immediately. The app will show the stock's liquidity, its assigned cluster based on liquidity, and using the best model for the particular cluster, our shiny app will produce a prediction vs actual plot generated from the selected model. This feature allows traders to directly assess our model's performance, thus assisting them to make decision on whether the model should be used.
 
 ## Discussion
 
@@ -58,12 +205,1456 @@ The aim of our project is to develop and communicate a model that accurately pre
 
 We believe that these future works will improve our model performance.
 
-\
-
 ## Student Contributions
+
+Aim & background: Baiyu 
+Method A: everyone (do own model)
+Method B: Isabella
+Results A: Derek & Tom
+Results B: Yuxiang 
+Discussion and conclusion: Alan
 
 ## References
 
+\[1\] Ben R. Marshall, Martin Young Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
+
+Wei Liu and Bruce Morley, 'Volatility in the Hang Seng Index using the GARCH Approach', Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4
+
 ## Appendix
+
+1.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
+
+    ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+    # Prepare work for clustering
+    path <- "./data3888/Optiver/individual_book_train"
+    names <- dir('./data3888/Optiver/individual_book_train')
+    # Get the list of file names in the directory
+    file_names <- list.files(path, pattern = ".csv", full.names = TRUE)
+    n <- 1
+    liquidity <- NULL
+    # Loop through each file, read it into a data frame, and add it to the list
+    for (file in file_names) {
+      name <- names[n]
+      n = n+1
+      df <- read.csv(file)
+      dff <- NULL
+      # store stock names
+      dff['name'] <- name
+      # calculate liquidity for each stock 
+      dff['liquidity'] <-round(sum(mean(df$bid_size1), mean(df$bid_size2),mean(df$ask_size1),mean(df$ask_size2)),0)
+      liquidity <- rbind(liquidity,dff)
+    }
+    liquidity <- as.data.frame(liquidity)
+    # load the liquidity file
+    l <- read.csv('liquidity edited.csv')
+    # Use kmean to cluster
+    kmeans <- kmeans(l[2], centers = 5)
+
+    samples_per_cluster <- 5
+    cluster_labels <- kmeans$cluster
+    # Initialize an empty list to store selected samples
+    selected_samples <- NULL
+
+    # Loop through each cluster
+    for (i in 1:5) {
+      # Extract samples belonging to the current cluster
+      current_cluster_samples <- l[cluster_labels == i, , drop = FALSE]
+      
+      # Randomly select samples from the current cluster
+      temp <- NULL
+      temp <- current_cluster_samples[sample(nrow(current_cluster_samples), samples_per_cluster), , drop = T]
+      temp['cluster'] <- i
+      selected_samples <- rbind(selected_samples,temp)
+    }
+
+    # Combine the selected samples from all clusters into a single matrix
+    selected_samples <- do.call(rbind, selected_samples)
+    selected_samples <- as.data.frame(selected_samples)
+
+    square <- function(x) {
+      return(x^2)
+    }
+    #make a function for calculate RMSE
+    Derek <- function(path,c) {
+      # data prepare 
+      s <- read.csv(path)
+      s <- s %>% mutate(WAP = (bid_price1 * ask_size1 +
+                                 ask_price1 * bid_size1) /
+                          (bid_size1 +   ask_size1))
+      data <- s %>% mutate(BidAskSpread = 
+                             ask_price1 / bid_price1 - 1)
+      data <- data %>%  mutate(time_bucket =
+                                 ceiling(seconds_in_bucket / 30))
+      lr <- c(data$WAP[1],diff(log(data$WAP)))
+      lr = as.data.frame(lr)
+      data <- cbind(data,lr)
+      id <- unique(data$time_id)
+      set.seed(c)
+      selected_id = sample(id, size = 100, replace = F)
+      results <- data.frame()
+      # Train a model for each time id
+      for (i in 1:length(selected_id)){
+        k <- data.frame()
+        d <- data %>% filter(time_id == selected_id[i])
+        d = d[-1,]
+        time <- unique(d$time_bucket)
+        # Take variables we need for training 
+        for (y in 1:length(time)){
+          df <- NULL
+          dt <- d %>% filter(time_bucket == time[y])
+          df['time_id'] = selected_id[i]
+          df['time_bucket'] = time[y]
+          df['mean_WAP'] = mean(dt$WAP)
+          df['mean_spread'] = mean(dt$BidAskSpread)
+          df['voladility'] = sqrt(sum(square(dt$lr)))
+          df = t(df)
+          df = as.data.frame(df) 
+          k <- rbind(df,k)
+        }
+        k <- k[order(k$time_bucket),]
+        i_d = k$time_id[1]
+        k = k[,-1]
+        # Start to train
+        train_control <- trainControl(method = "timeslice",
+                                      initialWindow = 4,  
+                                      horizon = 1,  
+                                      fixedWindow = TRUE)
+        svm_model <- train(voladility ~ ., data = k, method =
+                             "svmRadial", trControl =train_control)
+        # Take the RMSE
+        result = data.frame(i_d, svm_model$results$RMSE[1])
+        results = rbind(results,result)
+        
+      }
+      return(results)
+    }
+
+    # Get RMSEs for each cluster and prepare data for creating Boxplots
+    # Read cluster file we got from kmeans
+    cluster <- read.csv('sample select.csv')
+    n <- length(unique(cluster$cluster))
+    df_list <- list()
+    # Go through each cluster
+      for (i in 1:n) {
+        select <- cluster %>% filter(cluster == i)
+        print(i)
+        final <- data.frame()
+        #Go through each stock we randomly picked from each cluster
+        for (p in 1:length(select$X)) {
+          path = paste('./data3888/Optiver/individual_book_train/',select$X[p], sep = "")
+          
+          # Get RMSE in the cluster
+          rmse <- Derek(path,i)
+          rmse['Name'] = select$X[p]
+          final = rbind(final,rmse) 
+        }
+        df_list[[i]] = final
+      }
+      # Write them as CSV
+      for (i in seq_along(df_list)) {
+        write.csv(df_list[[i]], file = paste0("df", i, ".csv"), row.names = FALSE)
+      }
+
+    ```
+
+    ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+    ### Library
+    library(keras)
+    library(tensorflow)
+    library(ggplot2)
+    library(dplyr)
+    library(caret)
+    library(reshape2)
+    library(tidyverse)
+
+    ### Read data
+    sample_select <- read.csv("dataset/sample_select.csv")
+
+    ### get data from the csv file
+    # Initialize a list to store the data from the X column files
+    data_list <- list()
+
+    # Loop through each row of the sample_select data frame
+    for (i in 1:nrow(sample_select)) {
+      # Get the data path from the X column
+      path = paste("dataset/individual_book_train/", sample_select$X[i], sep = "")
+      
+      # Read the data from the data path
+      data <- read.csv(path)
+      
+      # Add the data and corresponding cluster value to the data_list
+      data_list[[i]] <- list(data = data, cluster = sample_select$cluster[i])
+    }
+
+
+    ### split the value into different cluster
+    # Initialize an empty named list to store the merged data for each unique cluster
+    unique_clusters <- unique(sample_select$cluster)
+    merged_data_list <- setNames(lapply(unique_clusters, function(x) NULL), as.character(unique_clusters))
+
+    # Loop through each data item in data_list
+    for (i in 1:length(data_list)) {
+      # Get the cluster value
+      cluster <- data_list[[i]]$cluster
+
+      # Check if the current cluster data frame is empty in merged_data_list
+      if (is.null(merged_data_list[[as.character(cluster)]])) {
+        # Initialize the merged_data_list with the first data frame for the cluster
+        merged_data_list[[as.character(cluster)]] <- data_list[[i]]$data
+      } else {
+        # Merge the data using bind_rows()
+        merged_data_list[[as.character(cluster)]] <- bind_rows(merged_data_list[[as.character(cluster)]],
+                                                                data_list[[i]]$data)
+      }
+    }
+
+
+    ### randomly select the time id from each cluster
+    #Cluster1
+    set.seed(1)
+    random_time_cluster1 <- sample(merged_data_list[[1]]$time_id, size = 100, replace = FALSE)
+
+    ## Cluster2 
+    set.seed(2)
+    random_time_cluster2 <- sample(merged_data_list[[2]]$time_id, size = 100, replace = FALSE)
+
+    ## Cluster3
+    set.seed(3)
+    random_time_cluster3 <- sample(merged_data_list[[3]]$time_id, size = 100, replace = FALSE)
+
+    ## Cluster4
+    set.seed(4)
+    random_time_cluster4 <- sample(merged_data_list[[4]]$time_id, size = 100, replace = FALSE)
+
+    ## Cluster5
+    set.seed(5)
+    random_time_cluster5 <- sample(merged_data_list[[5]]$time_id, size = 100, replace = FALSE)
+
+    set.seed(6)
+    random_time_cluster6 <- sample(merged_data_list[[6]]$time_id, size = 100, replace = FALSE)
+
+    ### Select the value based on the time id
+    get_data <- function(cluster_index, random_time_id) {
+      selected_cluster <- merged_data_list[[cluster_index]][merged_data_list[[cluster_index]]$time_id %in% random_time_id, ]
+      group_size <- 30
+      selected_rows_ <- selected_cluster %>%
+        mutate(group_id = (seconds_in_bucket) %/% group_size + 1)
+      
+      mean_cluster <- selected_rows_ %>%
+        group_by(stock_id, time_id, group_id) %>%
+        summarise(across(c("seconds_in_bucket", "bid_price1", "ask_price1", "bid_price2", "ask_price2", "bid_size1", "ask_size1", "bid_size2", "ask_size2", ), mean, na.rm = TRUE))
+      return(mean_cluster)
+    }
+
+    ### Get all the data for each cluster
+    mean_cluster1 = get_data(1, random_time_cluster1)
+    mean_cluster2 = get_data(2, random_time_cluster2)
+    mean_cluster3 = get_data(3, random_time_cluster3)
+    mean_cluster4 = get_data(4, random_time_cluster4)
+    mean_cluster5 = get_data(5, random_time_cluster5)
+    mean_cluster6 = get_data(6, random_time_cluster6)
+
+    ### Data to File
+    write.csv(mean_cluster1, "dataset/cluster1_data.csv", row.names=FALSE)
+    write.csv(mean_cluster2, "dataset/cluster2_data.csv", row.names=FALSE)
+    write.csv(mean_cluster3, "dataset/cluster3_data.csv", row.names=FALSE)
+    write.csv(mean_cluster4, "dataset/cluster4_data.csv", row.names=FALSE)
+    write.csv(mean_cluster5, "dataset/cluster5_data.csv", row.names=FALSE)
+    write.csv(mean_cluster6, "dataset/cluster6_data.csv", row.names=FALSE)
+
+    ### Load the data from file
+    mean_cluster1 = read.csv("dataset/cluster1_data.csv")
+    mean_cluster2 = read.csv("dataset/cluster2_data.csv")
+    mean_cluster3 = read.csv("dataset/cluster3_data.csv")
+    mean_cluster4 = read.csv("dataset/cluster4_data.csv")
+    mean_cluster5 = read.csv("dataset/cluster5_data.csv")
+    mean_cluster6 = read.csv("dataset/cluster6_data.csv")
+
+    ### Calculate the volatility
+    comp_vol <- function(x) {
+      return(sqrt(sum(x ^ 2)))
+    }
+
+
+    cal_vol <- function(df) {
+      # Calculate WAP
+      mean_cluster_copy <- df %>%
+        mutate(WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      
+      # Calculate the log return of WAP
+      mean_cluster_copy <- mean_cluster_copy %>%
+        group_by(stock_id, time_id) %>%
+        mutate(LogReturn = c(0, diff(log(WAP)))) %>%
+        arrange(stock_id, time_id, group_id)
+      
+      # Calculate volatility
+      mean_cluster_copy <- mean_cluster_copy %>%
+        group_by(stock_id, time_id, group_id) %>%
+        mutate(Volatility = comp_vol(LogReturn))
+      return(mean_cluster_copy)
+    }
+
+    ###    Assign the volality value to each cluster
+    cluster1_vol = cal_vol(mean_cluster1)
+    cluster2_vol = cal_vol(mean_cluster2)
+    cluster3_vol = cal_vol(mean_cluster3)
+    cluster4_vol = cal_vol(mean_cluster4)
+    cluster5_vol = cal_vol(mean_cluster5)
+    cluster6_vol = cal_vol(mean_cluster6)
+
+    ### get the train data
+    get_train_data <- function(df) {
+      set.seed(42)
+      split_index <- createDataPartition(df$Volatility, p = 0.8, list = FALSE, times = 1)
+      train_data <- df[split_index, ]
+      test_data <- df[-split_index, ]
+      
+      timesteps <- 1
+      n_features <- 5
+      x_train <- train_data[, c("LogReturn", "WAP", "bid_price1", "ask_size1", "bid_size1")]
+      y_train <- train_data[,"Volatility"]
+      x_train_array <- as.matrix(x_train)
+      y_train_array <- as.matrix(y_train)
+      x_train_reshaped <- array_reshape(x_train_array, c(nrow(x_train), timesteps, n_features))
+      
+      # Preprocess the test data
+      x_test <- test_data[, c("LogReturn", "WAP", "bid_price1", "ask_size1", "bid_size1")]
+      y_test <- test_data[,"Volatility"]
+      x_test_array <- as.matrix(x_test)
+      y_test_array <- as.matrix(y_test)
+      x_test_reshaped <- array_reshape(x_test_array, c(nrow(x_test), timesteps, n_features))
+      output <- list(train_data, test_data, x_train_reshaped, y_train_array, x_test_reshaped, y_test_array)
+      return(output)
+    }
+
+    ### Train and test data
+    cluster1_output = get_train_data(cluster1_vol)
+    cluster1_train = data.frame(cluster1_output[1])
+    cluster1_test = data.frame(cluster1_output[2])
+    cluster1_x_train = cluster1_output[3]
+    cluster1_y_train = cluster1_output[4]
+    cluster1_x_test = cluster1_output[5]
+    cluster1_y_test = cluster1_output[6]
+
+    cluster2_output = get_train_data(cluster2_vol)
+    cluster2_train = data.frame(cluster2_output[1])
+    cluster2_test = data.frame(cluster2_output[2])
+    cluster2_x_train = cluster2_output[3]
+    cluster2_y_train = cluster2_output[4]
+    cluster2_x_test = cluster2_output[5]
+    cluster2_y_test = cluster2_output[6]
+
+    cluster3_output = get_train_data(cluster3_vol)
+    cluster3_train = data.frame(cluster3_output[1])
+    cluster3_test = data.frame(cluster3_output[2])
+    cluster3_x_train = cluster3_output[3]
+    cluster3_y_train = cluster3_output[4]
+    cluster3_x_test = cluster3_output[5]
+    cluster3_y_test = cluster3_output[6]
+
+    cluster4_output = get_train_data(cluster4_vol)
+    cluster4_train = data.frame(cluster4_output[1])
+    cluster4_test = data.frame(cluster4_output[2])
+    cluster4_x_train = cluster4_output[3]
+    cluster4_y_train = cluster4_output[4]
+    cluster4_x_test = cluster4_output[5]
+    cluster4_y_test = cluster4_output[6]
+
+    cluster5_output = get_train_data(cluster5_vol)
+    cluster5_train = data.frame(cluster5_output[1])
+    cluster5_test = data.frame(cluster5_output[2])
+    cluster5_x_train = cluster5_output[3]
+    cluster5_y_train = cluster5_output[4]
+    cluster5_x_test = cluster5_output[5]
+    cluster5_y_test = cluster5_output[6]
+
+    cluster6_output = get_train_data(cluster6_vol)
+    cluster6_train = data.frame(cluster6_output[1])
+    cluster6_test = data.frame(cluster6_output[2])
+    cluster6_x_train = cluster6_output[3]
+    cluster6_y_train = cluster6_output[4]
+    cluster6_x_test = cluster6_output[5]
+    cluster6_y_test = cluster6_output[6]
+
+
+    ### Train the model with each cluster
+    train_test_model <- function(test_data, x_train, y_train, x_test, y_test) {
+      # Define RMSE metric
+      rmse <- custom_metric("rmse", function(y_true, y_pred) {
+        k_sqrt(k_mean(k_square(y_pred - y_true), axis = -1L))
+      })
+      
+      # Specify model architecture
+      model <- keras_model_sequential() %>%
+        layer_lstm(units = 50, return_sequences = TRUE, input_shape = c(1, 5)) %>%
+        layer_lstm(units = 50) %>%
+        layer_dense(units = 1)
+      
+      # Compile the model
+      model %>% compile(
+        loss = 'mse',
+        optimizer = 'adam',
+        metrics = list("mean_absolute_error", rmse)
+      )
+      
+      history <- model %>% fit(
+      x_train, y_train,
+      epochs = 10, batch_size = 2, 
+      validation_split = 0.2
+      )
+      predictions <- model %>% predict(x_test)
+
+      y_test <- unlist(y_test)
+      y_test <- as.numeric(y_test)
+      # Calculate MSE and RMSE
+      cluster_result <- data.frame(
+        MSE = (y_test - predictions) ^ 2,
+        RMSE = sqrt((y_test - predictions) ^ 2),
+        R_squared = cor(predictions, y_test)^2, 
+        qlike = mean(y_test/predictions - log(y_test/predictions) - 1)
+      )
+      # Add time_id and stock_id to results
+      cluster_result <- cluster_result %>%
+        mutate(time_id <- test_data$time_id)
+      cluster_result <- cluster_result %>%
+        mutate(stock_id <- test_data$stock_id)
+      print(cluster_result)
+      output <- list(cluster_result, model)
+      return(output)
+    }
+
+
+    ### Results of each cluster
+    cluster1_result_output = train_test_model(cluster1_test, cluster1_x_train, cluster1_y_train, cluster1_x_test, cluster1_y_test)
+    cluster1_result = data.frame(cluster1_result_output[1])
+    cluster1_model = cluster1_result_output[2]
+
+    cluster2_result_output = train_test_model(cluster2_test, cluster2_x_train, cluster2_y_train, cluster2_x_test, cluster2_y_test)
+    cluster2_result = data.frame(cluster2_result_output[1])
+    cluster2_model = cluster2_result_output[2]
+
+    cluster3_result_output = train_test_model(cluster3_test, cluster3_x_train, cluster3_y_train, cluster3_x_test, cluster3_y_test)
+    cluster3_result = data.frame(cluster3_result_output[1])
+    cluster3_model = cluster3_result_output[2]
+
+    cluster4_result_output = train_test_model(cluster4_test, cluster4_x_train, cluster4_y_train, cluster4_x_test, cluster4_y_test)
+    cluster4_result = data.frame(cluster4_result_output[1])
+    cluster4_model = cluster4_result_output[2]
+
+    cluster5_result_output = train_test_model(cluster5_test, cluster5_x_train, cluster5_y_train, cluster5_x_test, cluster5_y_test)
+    cluster5_result = data.frame(cluster5_result_output[1])
+    cluster5_model = cluster5_result_output[2]
+
+    cluster6_result_output = train_test_model(cluster6_test, cluster6_x_train, cluster6_y_train, cluster6_x_test, cluster6_y_test)
+    cluster6_result = data.frame(cluster6_result_output[1])
+    cluster6_model = cluster6_result_output[2]
+
+    ### Results
+    # Bind the data for all clusters together
+    cluster1_result$cluster <- "cluster1"
+    cluster2_result$cluster <- "cluster2"
+    cluster3_result$cluster <- "cluster3"
+    cluster4_result$cluster <- "cluster4"
+    cluster5_result$cluster <- "cluster5"
+    cluster6_result$cluster <- "cluster6"
+    all_results <- rbind(cluster1_result, cluster2_result, cluster3_result, cluster4_result, cluster5_result, cluster6_result)
+
+    # Reshape data to a long format
+    all_results_long <- melt(all_results, id.vars = c("cluster"))
+
+    # Create boxplot for MSE
+    mse_results <- all_results_long[all_results_long$variable == "MSE", ]
+    ggplot(mse_results, aes(x = cluster, y = value)) +
+      geom_boxplot() +
+      labs(x = "", y = "MSE", title = "Boxplot of MSE for All Clusters")
+
+    # Create boxplot for RMSE
+    rmse_results <- all_results_long[all_results_long$variable == "RMSE", ]
+    ggplot(rmse_results, aes(x = cluster, y = value)) +
+      geom_boxplot() +
+      labs(x = "", y = "RMSE", title = "Boxplot of RMSE for All Clusters")
+
+    ### Write the result to CSV file
+    write.csv(cluster1_result, "result/cluster1_LSTM_rmse.csv", row.names=FALSE)
+    write.csv(cluster2_result, "result/cluster2_LSTM_rmse.csv", row.names=FALSE)
+    write.csv(cluster3_result, "result/cluster3_LSTM_rmse.csv", row.names=FALSE)
+    write.csv(cluster4_result, "result/cluster4_LSTM_rmse.csv", row.names=FALSE)
+    write.csv(cluster5_result, "result/cluster5_LSTM_rmse.csv", row.names=FALSE)
+    write.csv(cluster6_result, "result/cluster6_LSTM_rmse.csv", row.names=FALSE)
+
+    ### Combine into one file
+    # Create a unique identifier within each cluster
+    group_cluster_results <- all_results %>%
+      group_by(cluster) %>%
+      mutate(id = row_number()) %>%
+      ungroup()
+
+    # Pivot your dataframe
+    RMSE_cluster_results <- group_cluster_results %>%
+      pivot_wider(names_from = cluster, values_from = RMSE, id_cols = id) %>%
+      select("cluster1", "cluster2", "cluster3", "cluster4", "cluster5", "cluster6")
+
+    # Pivot your dataframe
+    R_squared_cluster_results <- group_cluster_results %>%
+      pivot_wider(names_from = cluster, values_from = R_squared, id_cols = id) %>%
+      select("cluster1", "cluster2", "cluster3", "cluster4", "cluster5", "cluster6")
+    R_squared_cluster_results
+
+    write.csv(RMSE_cluster_results, "result/all_cluster_LSTM.csv", row.names=FALSE)
+    write.csv(R_squared_cluster_results, "result/LSTM_R_SQUARED.csv", row.names=FALSE)
+
+    ```
+
+    ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+    library(plyr)
+    library(tidyverse)
+    library(ggplot2)
+    library(leaflet)
+    library(dplyr)
+    library(data.table)
+    library(rugarch)
+    library(kernlab)
+    library(stats)
+    library(DT)
+    library(caret)
+    library(stats)
+    library(quantreg)
+    library(Metrics)
+
+    data(Default, package = "ISLR")
+
+    dir1 <- "Cluster 1"
+    cluster1 <- list.files(dir1)
+    dir2 <- "Cluster 2"
+    cluster2 <- list.files(dir2)
+    dir3 <- "Cluster 3"
+    cluster3 <- list.files(dir3)
+    dir4 <- "Cluster 4"
+    cluster4 <- list.files(dir4)
+    dir5 <- "Cluster 5"
+    cluster5 <- list.files(dir5)
+    dir6 <- "Clsuter outlier"
+    cluster6 <- list.files(dir6)
+
+    total_mse1 <- c()
+    mse_list1 <- c()
+    mse_list2 <- c()
+    mse_list3 <- c()
+    mse_list4 <- c()
+    mse_list5 <- c()
+    mse_list6 <- c()
+
+    count = 0
+
+    stock_file1 <- list()
+    for (i in cluster1) {
+      stock_file1[[i]] <- read.csv(file.path(dir1, i))
+    }
+
+    stock_file2 <- list()
+    for (i in cluster2) {
+      stock_file2[[i]] <- read.csv(file.path(dir2, i))
+    }
+
+    stock_file3 <- list()
+    for (i in cluster3) {
+      stock_file3[[i]] <- read.csv(file.path(dir3, i))
+    }
+
+    stock_file4 <- list()
+    for (i in cluster4) {
+      stock_file4[[i]] <- read.csv(file.path(dir4, i))
+    }
+
+    stock_file5 <- list()
+    for (i in cluster5) {
+      stock_file5[[i]] <- read.csv(file.path(dir5, i))
+    }
+
+    stock_file6 <- list()
+    for (i in cluster6) {
+      stock_file6[[i]] <- read.csv(file.path(dir6, i))
+    }
+
+    count = 0
+    total_mse1 <- c()
+    mse_list11 <- c()
+    mse_list12 <- c()
+    mse_list13 <- c()
+    mse_list14 <- c()
+    mse_list15 <- c()
+
+    for(i in 1 : length(stock_file1)){
+      
+      count = count + 1
+      
+      temporary <- stock_file1[[i]]
+      
+      temporary <- temporary %>% mutate(
+        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      temporary <- temporary %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+      #temporary <- temporary %>% mutate(BidAskSpread2 = ask_price2 / bid_price2 - 1)
+      temporary <- temporary %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+      
+      set.seed(1)
+      log_r1 <- list()
+      time_IDs <- unique(temporary[, 1])
+      sample_time_id = sample(time_IDs, 100, replace = FALSE)
+      
+      for (a in 1 : length(sample_time_id)) {
+        sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+        BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
+        #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
+        order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
+        price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
+        log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+        log_r1[[a]] <- data.frame(time = sec[-1], 
+                                  price = price[-1], 
+                                  BidAskSpread1= BS1[-1], 
+                                  #BidAskSpread2 = BS2[-1],
+                                  num_order = order[-1],
+                                  log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+        
+        time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
+        if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+          new.df <- data.frame(time = time.no.change, price = 0, 
+                               BidAskSpread1 = 0, 
+                               #BidAskSpread2 = 0, 
+                               num_order = 0, 
+                               log_return = 0)
+          log_r1[[a]] <- rbind(log_r1[[a]], new.df)
+          log_r1[[a]] <- log_r1[[a]][order(log_r1[[a]]$time), ]
+        }
+      }
+      
+      vol <- list()
+      comp_vol <- function(x) {
+        return(sqrt(sum(x ^ 2)))
+      }
+      comp_price <- function(x) {
+        return((sum(x))/length(x))
+      }
+      for (b in 1 : length(log_r1)) {
+        log_r1[[b]] <- log_r1[[b]] %>% mutate(time_bucket = ceiling(time / 30))
+        vol[[b]] <- aggregate(log_return ~ time_bucket, data = log_r1[[b]], FUN = comp_vol)
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        #vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread2 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        colnames(vol[[b]]) <- c('time_bucket', 
+                                'volatility','price', 
+                                'BidAskSpread1', 
+                                #'BidAskSpread2', 
+                                'num_order' )
+      }
+      
+      
+      for(e in 1: length(vol)){
+        inTrain <- createDataPartition(y=vol[[e]]$volatility,p=0.8,list=FALSE)
+        training <- vol[[e]][inTrain, ]
+        testing <- vol[[e]][-inTrain, ]
+        
+        glmnet1 <- train(volatility ~ ., data = training, method = "glmnet",
+                       trControl = trainControl(method = "cv"),
+                       tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-18, 1e-10, length = 300)))
+                       #tuneGrid = expand.grid(alpha = 0, lambda = 7.61524e-05))
+        predicted <- predict(glmnet1, newdata = testing)
+        mse <- mean((predicted - testing$volatility)^2)
+        total_mse1 <- c(total_mse1, mse)
+        if(count == 1){
+          mse_list11 <- c(mse_list11, mse)
+        }
+        if(count == 2){
+          mse_list12 <- c(mse_list12, mse)
+        }
+        if(count == 3){
+          mse_list13 <- c(mse_list13, mse)
+        }
+        if(count == 4){
+          mse_list14 <- c(mse_list14, mse)
+        }
+        if(count == 5){
+          mse_list15 <- c(mse_list15, mse)
+        }
+      }
+    }
+    c(mean(total_mse1), sqrt(mean(total_mse1)))
+
+    boxplot(total_mse1,horizontal = TRUE)
+
+    start_time <- Sys.time()
+
+    count = 0
+    total_mse2 <- c()
+    mse_list21 <- c()
+    mse_list22 <- c()
+    mse_list23 <- c()
+    mse_list24 <- c()
+    mse_list25 <- c()
+    r_squared_list <- c()
+    qlike <- c()
+    mae_list <- c()
+
+    for(i in 1 : length(stock_file2)){
+      
+      count = count + 1
+      
+      temporary <- stock_file2[[i]]
+      
+      temporary <- temporary %>% mutate(
+        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      temporary <- temporary %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+      #temporary <- temporary %>% mutate(BidAskSpread2 = ask_price2 / bid_price2 - 1)
+      temporary <- temporary %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+      
+      
+      
+      
+      set.seed(2)
+      log_r1 <- list()
+      time_IDs <- unique(temporary[, 1])
+      sample_time_id = sample(time_IDs, 100, replace = FALSE)
+      
+      for (a in 1 : length(sample_time_id)) {
+        sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+        BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
+        #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
+        order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
+        price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
+        log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+        log_r1[[a]] <- data.frame(time = sec[-1], 
+                                  price = price[-1], 
+                                  BidAskSpread1= BS1[-1] , 
+                                  #BidAskSpread2 = BS2[-1],
+                                  num_order = order[-1] ,
+                                  log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+        
+        time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
+        if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+          new.df <- data.frame(time = time.no.change, 
+                               price = 0, 
+                               BidAskSpread1 = 0, 
+                               #BidAskSpread2 = 0, 
+                               num_order = 0, 
+                               log_return = 0)
+          log_r1[[a]] <- rbind(log_r1[[a]], new.df)
+          log_r1[[a]] <- log_r1[[a]][order(log_r1[[a]]$time), ]
+        }
+      }
+      
+      vol <- list()
+      comp_vol <- function(x) {
+        return(sqrt(sum(x ^ 2)))
+      }
+      comp_price <- function(x) {
+        return((sum(x))/length(x))
+      }
+      for (b in 1 : length(log_r1)) {
+        log_r1[[b]] <- log_r1[[b]] %>% mutate(time_bucket = ceiling(time / 30))
+        vol[[b]] <- aggregate(log_return ~ time_bucket, data = log_r1[[b]], FUN = comp_vol)
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        #vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread2 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        colnames(vol[[b]]) <- c('time_bucket', 
+                                'volatility',
+                                'price', 
+                                'BidAskSpread1', 
+                                #'BidAskSpread2', 
+                                'num_order' )
+      }
+      
+      
+      for(e in 1: length(vol)){
+        inTrain <- createDataPartition(y=vol[[e]]$volatility,p=0.8,list=FALSE)
+        training <- vol[[e]][inTrain, ]
+        testing <- vol[[e]][-inTrain, ]
+        
+        glmnet2 <- train(volatility ~ ., data = training, method = "glmnet",
+                       trControl = trainControl(method = "cv"),
+                       tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-8, 1e-1, length = 300)))
+                       #tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-10, 1e-3, length = 300)))#seq(0.00000001, 10, length = 300)))
+        predicted <- predict(glmnet2, newdata = testing)
+        mse <- mean((predicted - testing$volatility)^2)
+        
+        corr <- cor(y_ture <- predicted, y_pred <- testing$volatility)
+        r_squared <- corr^2
+        r_squared_list <- c(r_squared_list, r_squared)
+        
+        qlike <- c(qlike, mean( testing$volatility /predicted   - log(testing$volatility/predicted) - 1))
+        
+        small_list <- c()
+        
+        for(z in (1:4)){
+         small_list =  c(small_list, abs(predicted[[z]] - testing$volatility[[z]]))
+        }
+        
+        mae_list <- c(mae_list, mean(small_list))
+        
+        total_mse2 <- c(total_mse2, mse)
+        if(count == 1){
+          mse_list21 <- c(mse_list21, mse)
+        }
+        if(count == 2){
+          mse_list22 <- c(mse_list22, mse)
+        }
+        if(count == 3){
+          mse_list23 <- c(mse_list23, mse)
+        }
+        if(count == 4){
+          mse_list24 <- c(mse_list24, mse)
+        }
+        if(count == 5){
+          mse_list25 <- c(mse_list25, mse)
+        }
+      }
+    }
+    end_time <- Sys.time()
+    c(mean(total_mse2), sqrt(mean(total_mse2)), mean(r_squared_list, na.rm = TRUE), end_time-start_time, mean(qlike, na.rm = TRUE), mean(mae_list, na.rm = TRUE))
+
+
+
+    write.csv(r_squared_list, "r_squared.csv", row.names = FALSE)
+    write.csv(qlike, "qlike.csv", row.names = FALSE)
+    write.csv(mae_list, "mae.csv", row.names = FALSE)
+
+    boxplot(total_mse2,horizontal = TRUE)
+
+    count = 0
+    total_mse3 <- c()
+    mse_list31 <- c()
+    mse_list32 <- c()
+    mse_list33 <- c()
+    mse_list34 <- c()
+    mse_list35 <- c()
+
+    for(i in 1 : length(stock_file3)){
+      
+      count = count + 1
+      
+      temporary <- stock_file3[[i]]
+      
+      temporary <- temporary %>% mutate(
+        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      temporary <- temporary %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+      #temporary <- temporary %>% mutate(BidAskSpread2 = ask_price2 / bid_price2 - 1)
+      temporary <- temporary %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+      
+      set.seed(3)
+      log_r1 <- list()
+      time_IDs <- unique(temporary[, 1])
+      sample_time_id = sample(time_IDs, 100, replace = FALSE)
+      
+      for (a in 1 : length(sample_time_id)) {
+        sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+        BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
+        #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
+        order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
+        price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
+        log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+        log_r1[[a]] <- data.frame(time = sec[-1], 
+                                  price = price[-1], 
+                                  BidAskSpread1= BS1[-1], 
+                                  #BidAskSpread2 = BS2[-1],
+                                  num_order = order[-1],
+                                  log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+        
+        time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
+        if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+          new.df <- data.frame(time = time.no.change, 
+                               price = 0, 
+                               BidAskSpread1 = 0, 
+                               #BidAskSpread2 = 0, 
+                               num_order = 0, 
+                               log_return = 0)
+          log_r1[[a]] <- rbind(log_r1[[a]], new.df)
+          log_r1[[a]] <- log_r1[[a]][order(log_r1[[a]]$time), ]
+        }
+      }
+      
+      vol <- list()
+      comp_vol <- function(x) {
+        return(sqrt(sum(x ^ 2)))
+      }
+      comp_price <- function(x) {
+        return((sum(x))/length(x))
+      }
+      for (b in 1 : length(log_r1)) {
+        log_r1[[b]] <- log_r1[[b]] %>% mutate(time_bucket = ceiling(time / 30))
+        vol[[b]] <- aggregate(log_return ~ time_bucket, data = log_r1[[b]], FUN = comp_vol)
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        #vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread2 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        colnames(vol[[b]]) <- c('time_bucket', 
+                                'volatility',
+                                'price', 
+                                'BidAskSpread1', 
+                                #'BidAskSpread2', 
+                                'num_order' )
+      }
+      
+      
+      for(e in 1: length(vol)){
+        inTrain <- createDataPartition(y=vol[[e]]$volatility,p=0.8,list=FALSE)
+        training <- vol[[e]][inTrain, ]
+        testing <- vol[[e]][-inTrain, ]
+        
+        glmnet3 <- train(volatility ~ ., data = training, method = "glmnet",
+                       trControl = trainControl(method = "cv"),
+                       tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-8, 1e-1, length = 300)))
+                       #tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-10, 1e-3, length = 300))) #seq(0.00000001, 10, length = 300)))
+        predicted <- predict(glmnet3, newdata = testing)
+        mse <- mean((predicted - testing$volatility)^2)
+        total_mse3 <- c(total_mse3, mse)
+        if(count == 1){
+          mse_list31 <- c(mse_list31, mse)
+        }
+        if(count == 2){
+          mse_list32 <- c(mse_list32, mse)
+        }
+        if(count == 3){
+          mse_list33 <- c(mse_list33, mse)
+        }
+        if(count == 4){
+          mse_list34 <- c(mse_list34, mse)
+        }
+        if(count == 5){
+          mse_list35 <- c(mse_list35, mse)
+        }
+      }
+    }
+    c(mean(total_mse3), sqrt(mean(total_mse3)))
+
+    boxplot(total_mse3,horizontal = TRUE)
+    count = 0
+    total_mse4 <- c()
+    mse_list41 <- c()
+    mse_list42 <- c()
+    mse_list43 <- c()
+    mse_list44 <- c()
+    mse_list45 <- c()
+
+    for(i in 1 : length(stock_file4)){
+      
+      count = count + 1
+      
+      temporary <- stock_file4[[i]]
+      
+      temporary <- temporary %>% mutate(
+        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      temporary <- temporary %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+      #temporary <- temporary %>% mutate(BidAskSpread2 = ask_price2 / bid_price2 - 1)
+      temporary <- temporary %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+      
+      set.seed(4)
+      log_r1 <- list()
+      time_IDs <- unique(temporary[, 1])
+      sample_time_id = sample(time_IDs, 100, replace = FALSE)
+      
+      for (a in 1 : length(sample_time_id)) {
+        sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+        BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
+        #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
+        order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
+        price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
+        log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+        log_r1[[a]] <- data.frame(time = sec[-1], 
+                                  price = price[-1], 
+                                  BidAskSpread1= BS1[-1], 
+                                  #BidAskSpread2 = BS2[-1],
+                                  num_order = order[-1],
+                                  log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+        
+        time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
+        if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+          new.df <- data.frame(time = time.no.change, 
+                               price = 0, 
+                               BidAskSpread1 = 0, 
+                               #BidAskSpread2 = 0, 
+                               num_order = 0, 
+                               log_return = 0)
+          log_r1[[a]] <- rbind(log_r1[[a]], new.df)
+          log_r1[[a]] <- log_r1[[a]][order(log_r1[[a]]$time), ]
+        }
+      }
+      
+      vol <- list()
+      comp_vol <- function(x) {
+        return(sqrt(sum(x ^ 2)))
+      }
+      comp_price <- function(x) {
+        return((sum(x))/length(x))
+      }
+      for (b in 1 : length(log_r1)) {
+        log_r1[[b]] <- log_r1[[b]] %>% mutate(time_bucket = ceiling(time / 30))
+        vol[[b]] <- aggregate(log_return ~ time_bucket, data = log_r1[[b]], FUN = comp_vol)
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        #vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread2 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        colnames(vol[[b]]) <- c('time_bucket', 
+                                'volatility',
+                                'price', 
+                                'BidAskSpread1', 
+                                #'BidAskSpread2', 
+                                'num_order' )
+      }
+      
+      
+      for(e in 1: length(vol)){
+        inTrain <- createDataPartition(y=vol[[e]]$volatility,p=0.8,list=FALSE)
+        training <- vol[[e]][inTrain, ]
+        training <- training[, !colnames(training) %in% "time_bucket"]
+        testing <- vol[[e]][-inTrain, ]
+        testing <- testing[, !colnames(testing) %in% "time_bucket"]
+        
+        glmnet4 <- train(volatility ~ ., data = training, method = "glmnet",
+                       trControl = trainControl(method = "cv"),
+                       tuneGrid = expand.grid(alpha = 0, lambda = 7.61524e-05)) #seq(1e-10, 1e-3, length = 300) 7.61524e-05
+        predicted <- predict(glmnet4, newdata = testing)
+        mse <- mean((predicted - testing$volatility)^2)
+        total_mse4 <- c(total_mse4, mse)
+        if(count == 1){
+          mse_list41 <- c(mse_list41, mse)
+        }
+        if(count == 2){
+          mse_list42 <- c(mse_list42, mse)
+        }
+        if(count == 3){
+          mse_list43 <- c(mse_list43, mse)
+        }
+        if(count == 4){
+          mse_list44 <- c(mse_list44, mse)
+        }
+        if(count == 5){
+          mse_list45 <- c(mse_list45, mse)
+        }
+      }
+    }
+    c(mean(total_mse4), sqrt(mean(total_mse4)))
+
+    boxplot(total_mse4,horizontal = TRUE)
+    count = 0
+    total_mse5 <- c()
+    mse_list51 <- c()
+    mse_list52 <- c()
+    mse_list53 <- c()
+    mse_list54 <- c()
+    mse_list55 <- c()
+
+    for(i in 1 : length(stock_file5)){
+      
+      count = count + 1
+      
+      temporary <- stock_file5[[i]]
+      
+      temporary <- temporary %>% mutate(
+        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      temporary <- temporary %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+      #temporary <- temporary %>% mutate(BidAskSpread2 = ask_price2 / bid_price2 - 1)
+      temporary <- temporary %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+      
+      set.seed(5)
+      log_r1 <- list()
+      time_IDs <- unique(temporary[, 1])
+      sample_time_id = sample(time_IDs, 100, replace = FALSE)
+      
+      for (a in 1 : length(sample_time_id)) {
+        sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+        BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
+        #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
+        order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
+        price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
+        log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+        log_r1[[a]] <- data.frame(time = sec[-1], 
+                                  price = price[-1], 
+                                  BidAskSpread1= BS1[-1], 
+                                  #BidAskSpread2 = BS2[-1],
+                                  num_order = order[-1],
+                                  log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+        
+        time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
+        if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+          new.df <- data.frame(time = time.no.change, 
+                               price = 0, 
+                               BidAskSpread1 = 0, 
+                               #BidAskSpread2 = 0, 
+                               num_order = 0, 
+                               log_return = 0)
+          log_r1[[a]] <- rbind(log_r1[[a]], new.df)
+          log_r1[[a]] <- log_r1[[a]][order(log_r1[[a]]$time), ]
+        }
+      }
+      
+      vol <- list()
+      comp_vol <- function(x) {
+        return(sqrt(sum(x ^ 2)))
+      }
+      comp_price <- function(x) {
+        return((sum(x))/length(x))
+      }
+      for (b in 1 : length(log_r1)) {
+        log_r1[[b]] <- log_r1[[b]] %>% mutate(time_bucket = ceiling(time / 30))
+        vol[[b]] <- aggregate(log_return ~ time_bucket, data = log_r1[[b]], FUN = comp_vol)
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        #vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread2 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        colnames(vol[[b]]) <- c('time_bucket', 
+                                'volatility',
+                                'price', 
+                                'BidAskSpread1', 
+                                #'BidAskSpread2', 
+                                'num_order' )
+      }
+      
+      
+      for(e in 1: length(vol)){
+        inTrain <- createDataPartition(y=vol[[e]]$volatility,p=0.8,list=FALSE)
+        training <- vol[[e]][inTrain, ]
+        testing <- vol[[e]][-inTrain, ]
+        
+        glmnet5 <- train(volatility ~ ., data = training, method = "glmnet",
+                       trControl = trainControl(method = "cv"),
+                       tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-8, 1e-1, length = 300)))
+                       
+        predicted <- predict(glmnet5, newdata = testing)
+        mse <- mean((predicted - testing$volatility)^2)
+        total_mse5 <- c(total_mse5, mse)
+        if(count == 1){
+          mse_list51 <- c(mse_list51, mse)
+        }
+        if(count == 2){
+          mse_list52 <- c(mse_list52, mse)
+        }
+        if(count == 3){
+          mse_list53 <- c(mse_list53, mse)
+        }
+        if(count == 4){
+          mse_list54 <- c(mse_list54, mse)
+        }
+        if(count == 5){
+          mse_list55 <- c(mse_list55, mse)
+        }
+      }
+    }
+    c(mean(total_mse5), sqrt(mean(total_mse5)))
+
+
+
+    boxplot(total_mse5,horizontal = TRUE)
+
+    count = 0
+    total_mse6 <- c()
+    total_qlk6 <- c()
+    mse_list61 <- c()
+    mse_list62 <- c()
+    mse_list63 <- c()
+    mse_list64 <- c()
+    mse_list65 <- c()
+
+    for(i in 1 : length(stock_file6)){
+      
+      count = count + 1
+      
+      temporary <- stock_file6[[i]]
+      
+      temporary <- temporary %>% mutate(
+        WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+      temporary <- temporary %>% mutate(BidAskSpread1 = ask_price1 / bid_price1 - 1)
+      #temporary <- temporary %>% mutate(BidAskSpread2 = ask_price2 / bid_price2 - 1)
+      temporary <- temporary %>% mutate(num_order = bid_size1 + ask_size1 + bid_size2 + ask_size2)
+      
+      set.seed(6)
+      log_r1 <- list()
+      time_IDs <- unique(temporary[, 1])
+      sample_time_id = sample(time_IDs, 100, replace = FALSE)
+      
+      for (a in 1 : length(sample_time_id)) {
+        sec <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(seconds_in_bucket) #对于sample_time_id             中的每个元素，获取 stock1 数据集中 time_id 列等于该元素的行的秒数。
+        BS1 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread1)
+        #BS2 <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(BidAskSpread2)
+        order <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(num_order)
+        price <- temporary %>% filter(time_id == sample_time_id[a]) %>% pull(WAP) 
+        log_r <- log(price[-1] / price[1:(length(price) - 1)]) #使用所选行的 WAP 列计算对数收益率
+        log_r1[[a]] <- data.frame(time = sec[-1], 
+                                  price = price[-1], 
+                                  BidAskSpread1= BS1[-1], 
+                                  #BidAskSpread2 = BS2[-1],
+                                  num_order = order[-1],
+                                  log_return = log_r)#将对数收益率存储在一个名为 log_r1 的列表中。
+        
+        time.no.change <- (1:600)[!(1:600 %in% log_r1[[a]]$time)]
+        if (length(time.no.change) > 0) { #如果所选的时间戳没有连续的秒数数据，补充缺失的秒数数据，并将对数收益率设置为 0。
+          new.df <- data.frame(time = time.no.change, 
+                               price = 0, 
+                               BidAskSpread1 = 0, 
+                               #BidAskSpread2 = 0, 
+                               num_order = 0, 
+                               log_return = 0)
+          log_r1[[a]] <- rbind(log_r1[[a]], new.df)
+          log_r1[[a]] <- log_r1[[a]][order(log_r1[[a]]$time), ]
+        }
+      }
+      
+      vol <- list()
+      comp_vol <- function(x) {
+        return(sqrt(sum(x ^ 2)))
+      }
+      comp_price <- function(x) {
+        return((sum(x))/length(x))
+      }
+      for (b in 1 : length(log_r1)) {
+        log_r1[[b]] <- log_r1[[b]] %>% mutate(time_bucket = ceiling(time / 30))
+        vol[[b]] <- aggregate(log_return ~ time_bucket, data = log_r1[[b]], FUN = comp_vol)
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(price ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread1 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        #vol[[b]] <- vol[[b]] %>% mutate(aggregate(BidAskSpread2 ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        vol[[b]] <- vol[[b]] %>% mutate(aggregate(num_order ~ time_bucket, data = log_r1[[b]], FUN = comp_price))
+        colnames(vol[[b]]) <- c('time_bucket', 
+                                'volatility',
+                                'price', 
+                                'BidAskSpread1', 
+                                #'BidAskSpread2', 
+                                'num_order' )
+      }
+      
+      
+      for(e in 1: length(vol)){
+        inTrain <- createDataPartition(y=vol[[e]]$volatility,p=0.8,list=FALSE)
+        training <- vol[[e]][inTrain, ]
+        testing <- vol[[e]][-inTrain, ]
+        
+        glmnet6 <- train(volatility ~ ., data = training, method = "glmnet",
+                       trControl = trainControl(method = "cv"),
+                       tuneGrid = expand.grid(alpha = 0, lambda = seq(1e-8, 1e-1, length = 300)))
+                       
+        predicted <- predict(glmnet6, newdata = testing)
+        mse <- mean((predicted - testing$volatility)^2)
+        model_summary <- summary(glmnet6)
+        
+        LossVol(testing$volatility, predicted, which = "SE1")
+        
+        #rsquared <- model_summary$r.squared
+        total_mse6 <- c(total_mse6, mse)
+        if(count == 1){
+          mse_list61 <- c(mse_list61, mse)
+        }
+        if(count == 2){
+          mse_list62 <- c(mse_list62, mse)
+        }
+        if(count == 3){
+          mse_list63 <- c(mse_list63, mse)
+        }
+        if(count == 4){
+          mse_list64 <- c(mse_list64, mse)
+        }
+        if(count == 5){
+          mse_list65 <- c(mse_list65, mse)
+        }
+      }
+    }
+    c(mean(total_mse6), mean(sqrt(total_mse6), mean(total_qlk6)))
+
+    boxplot(total_mse6,horizontal = TRUE)
+    boxplot(total_mse1, 
+            total_mse2,
+            total_mse3, 
+            total_mse4,
+            total_mse5, 
+            total_mse6,
+            horizontal = TRUE)
+
+    filtered_data1 <- subset(sqrt(total_mse1), 
+                            sqrt(total_mse1) >= quantile(sqrt(total_mse1), 0.25) - 1.5 * 
+                              (quantile(sqrt(total_mse1), 0.75)-quantile(sqrt(total_mse1), 0.25))
+                            & 
+                            sqrt(total_mse1) <= quantile(sqrt(total_mse1), 0.75) + 1.5 * 
+                              (quantile(sqrt(total_mse1), 0.75)-quantile(sqrt(total_mse1), 0.25)))
+    filtered_data2 <- subset(sqrt(total_mse2), 
+                            sqrt(total_mse2) >= quantile(sqrt(total_mse2), 0.25) - 1.5 * 
+                              (quantile(sqrt(total_mse2), 0.75)-quantile(sqrt(total_mse2), 0.25))
+                            & 
+                            sqrt(total_mse2) <= quantile(sqrt(total_mse2), 0.75) + 1.5 * 
+                              (quantile(sqrt(total_mse2), 0.75)-quantile(sqrt(total_mse2), 0.25)))
+    filtered_data3 <- subset(sqrt(total_mse3), 
+                            sqrt(total_mse3) >= quantile(sqrt(total_mse3), 0.25) - 1.5 * 
+                              (quantile(sqrt(total_mse3), 0.75)-quantile(sqrt(total_mse3), 0.25))
+                            & 
+                            sqrt(total_mse3) <= quantile(sqrt(total_mse3), 0.75) + 1.5 * 
+                              (quantile(sqrt(total_mse3), 0.75)-quantile(sqrt(total_mse3), 0.25)))
+    filtered_data4 <- subset(sqrt(total_mse4), 
+                            sqrt(total_mse4) >= quantile(sqrt(total_mse4), 0.25) - 1.5 * 
+                              (quantile(sqrt(total_mse4), 0.75)-quantile(sqrt(total_mse4), 0.25))
+                            & 
+                            sqrt(total_mse4) <= quantile(sqrt(total_mse4), 0.75) + 1.5 * 
+                              (quantile(sqrt(total_mse4), 0.75)-quantile(sqrt(total_mse4), 0.25)))
+    filtered_data5 <- subset(sqrt(total_mse5), 
+                            sqrt(total_mse5) >= quantile(sqrt(total_mse5), 0.25) - 1.5 * 
+                              (quantile(sqrt(total_mse5), 0.75)-quantile(sqrt(total_mse5), 0.25))
+                            & 
+                            sqrt(total_mse5) <= quantile(sqrt(total_mse5), 0.75) + 1.5 * 
+                              (quantile(sqrt(total_mse5), 0.75)-quantile(sqrt(total_mse5), 0.25)))
+    filtered_data6 <- subset(sqrt(total_mse6), 
+                            sqrt(total_mse6) >= quantile(sqrt(total_mse6), 0.25) - 1.5 * 
+                              (quantile(sqrt(total_mse6), 0.75)-quantile(sqrt(total_mse6), 0.25))
+                            & 
+                            sqrt(total_mse6) <= quantile(sqrt(total_mse6), 0.75) + 1.5 * 
+                              (quantile(sqrt(total_mse6), 0.75)-quantile(sqrt(total_mse6), 0.25)))
+
+
+    boxplot(filtered_data1,filtered_data2,filtered_data3,filtered_data4,filtered_data5,filtered_data6, main = "RMSE for each cluster")
+
+    write.csv(total_mse1, "pred1.csv", row.names = FALSE)
+    write.csv(total_mse2, "pred2.csv", row.names = FALSE)
+    write.csv(total_mse3, "pred3.csv", row.names = FALSE)
+    write.csv(total_mse4, "pred4.csv", row.names = FALSE)
+    write.csv(total_mse5, "pred5.csv", row.names = FALSE)
+    write.csv(total_mse6, "pred6.csv", row.names = FALSE)
+
+    write.csv(filtered_data1, "pred1.csv", row.names = FALSE)
+    write.csv(filtered_data2, "pred2.csv", row.names = FALSE)
+    write.csv(filtered_data3, "pred3.csv", row.names = FALSE)
+    write.csv(filtered_data4, "pred4.csv", row.names = FALSE)
+    write.csv(filtered_data5, "pred5.csv", row.names = FALSE)
+    write.csv(filtered_data6, "pred6.csv", row.names = FALSE)
+
+    ```
+
+    ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+    stock_1 <- read.csv("~/Desktop/DATA3888/individual_book_train/stock_41.csv")
+
+    stock_1 <- stock_1 %>% mutate(
+      WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
+    stock_1 <- stock_1 %>% mutate(BidAskSpread = ask_price1 / bid_price1 - 1)
+
+    log_r1 <- list()
+    time_IDs <- unique(stock_1[, 1])[1:50]
+    for (i in 1 : length(time_IDs)) {
+      sec <- stock_1 %>% filter(time_id == time_IDs[i]) %>% pull(seconds_in_bucket)
+      price <- stock_1 %>% filter(time_id == time_IDs[i]) %>% pull(WAP)
+      log_r <- log(price[-1] / price[1:(length(price) - 1)])
+      log_r1[[i]] <- data.frame(time = sec[-1], log_return = log_r)
+      time.no.change <- (1:600)[!(1:600 %in% log_r1[[i]]$time)]
+      if (length(time.no.change) > 0) {
+        new.df <- data.frame(time = time.no.change, log_return = 0)
+        log_r1[[i]] <- rbind(log_r1[[i]], new.df)
+        log_r1[[i]] <- log_r1[[i]][order(log_r1[[i]]$time), ]
+      }
+    }
+
+    vol <- list()
+    comp_vol <- function(x) {
+      return(sqrt(sum(x ^ 2)))
+    }
+    for (i in 1 : length(log_r1)) {
+      log_r1[[i]] <- log_r1[[i]] %>% mutate(time_bucket = ceiling(time / 30))
+      vol[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_vol)
+      colnames(vol[[i]]) <- c('time_bucket', 'volatility')
+    }
+
+
+    log_r1_2 <- list()
+    time_IDs2 <- unique(stock_1[, 1])[51:550]
+    for (i in 1 : length(time_IDs2)) {
+      sec2 <- stock_1 %>% filter(time_id == time_IDs2[i]) %>% pull(seconds_in_bucket)
+      price2 <- stock_1 %>% filter(time_id == time_IDs2[i]) %>% pull(WAP)
+      log_r2 <- log(price2[-1] / price2[1:(length(price2) - 1)])
+      log_r1_2[[i]] <- data.frame(time = sec2[-1], log_return = log_r2)
+      time.no.change2 <- (1:600)[!(1:600 %in% log_r1_2[[i]]$time)]
+      if (length(time.no.change2) > 0) {
+        new.df2 <- data.frame(time = time.no.change2, log_return = 0)
+        log_r1_2[[i]] <- rbind(log_r1_2[[i]], new.df2)
+        log_r1_2[[i]] <- log_r1_2[[i]][order(log_r1_2[[i]]$time), ]
+      }
+    }
+
+    vol_2 <- list()
+    comp_vol <- function(x) {
+      return(sqrt(sum(x ^ 2)))
+    }
+    for (i in 1 : length(log_r1_2)) {
+      log_r1_2[[i]] <- log_r1_2[[i]] %>% mutate(time_bucket = ceiling(time / 30))
+      vol_2[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1_2[[i]], FUN = comp_vol)
+      colnames(vol_2[[i]]) <- c('time_bucket', 'volatility')
+    }
+
+    vol.train <- list()
+
+    for (i in 1 : length(log_r1)) {
+      vol.train[[i]] <- vol[[i]]
+    }
+
+    len.train <- length(vol.train[[1]]$volatility)
+
+    list.HAV <- list()
+
+    for (i in 1 : length(vol)) {
+      mean.vol <- rep(0, len.train - 5)
+      for (j in 1 : 5) {
+        mean.vol <- mean.vol + vol.train[[i]]$volatility[j : (j + len.train - 6)] / 5
+      }
+      list.HAV[[i]] <- data.frame(vol = vol.train[[i]]$volatility[-(1:5)], 
+                                  vol_1 = vol.train[[i]]$volatility[5:(len.train - 1)],
+                                  mean_vol_5 = mean.vol)
+    }
+
+    quar <- list()
+    comp_quar <- function(x) {
+      return(length(x) / 3 * sum(x ^ 4))
+    }
+    for (i in 1 : length(log_r1)) {
+      quar[[i]] <- aggregate(log_return ~ time_bucket, data = log_r1[[i]], FUN = comp_quar)
+      colnames(quar[[i]]) <- c('time_bucket', 'quarticity')
+    }
+
+    HAV.ols.models <- list()
+    HAV.wls.models <- list()
+
+    for (i in 1 : length(vol)) {
+      HAV.ols.models[[i]] <- lm(vol ~ vol_1 + mean_vol_5, list.HAV[[i]])
+      
+      # weight.HAV <- 0
+      HAV.wls.models[[i]] <- lm(vol ~ vol_1 + mean_vol_5, list.HAV[[i]],
+                                weights = list.HAV[[i]]$vol_1 / 
+                                  sqrt(quar[[i]]$quarticity[5:(len.train - 1)]))
+    }
+
+    vol.test <- list()
+
+    for (i in 1 : length(log_r1_2)) {
+      vol.test[[i]] <- vol_2[[i]]
+    }
+
+    len.test <- length(vol.test[[1]]$volatility)
+
+    list.HAV.test <- list()
+
+    for (i in 1 : length(vol_2)) {
+      mean.vol.test <- rep(0, len.test - 5)
+      for (j in 1 : 5) {
+        mean.vol.test <- mean.vol.test + vol.test[[i]]$volatility[j : (j + len.test - 6)] / 5
+      }
+      list.HAV.test[[i]] <- data.frame(vol = vol.test[[i]]$volatility[-(1:5)], 
+                                  vol_1 = vol.test[[i]]$volatility[5:(len.test - 1)],
+                                  mean_vol_5 = mean.vol)
+    }
+
+
+    for (i in 1:50){
+      for(j in 1:10){
+        predicted <- predict(HAV.wls.models[[i]], newdata = list.HAV.test[[(i-1)*5 + j]])
+        mse <- mean((predicted - list.HAV.test[[(i-1)*5 + j]]$vol)^2)
+        rmse <- sqrt(mse)
+        RMSE_6 <- append(RMSE_6, rmse)
+      }
+    }
+    boxplot(RMSE_1)
+
+    rmses <- data.frame(RMSE_1,RMSE_2,RMSE_3,RMSE_4,RMSE_5,RMSE_6)
+    names(rmses) <- c("cluster1","cluster2","cluster3","cluster4","cluster5","cluster6")
+    write.csv(rmses, "~/Downloads/rmse.csv", row.names=FALSE)
+    ```
 
 ### 
