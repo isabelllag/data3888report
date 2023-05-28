@@ -353,6 +353,8 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
 
     ```
 
+    2.  Coding for LSTM
+
     ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
     ### Library
     library(keras)
@@ -700,6 +702,8 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
     write.csv(R_squared_cluster_results, "result/LSTM_R_SQUARED.csv", row.names=FALSE)
 
     ```
+
+    3.  Coding for Ridge regression
 
     ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
     library(plyr)
@@ -1517,6 +1521,8 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
     write.csv(filtered_data6, "pred6.csv", row.names = FALSE)
 
     ```
+
+    4.  Coding for HAV-RV
 
     ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
     stock_1 <- read.csv("~/Desktop/DATA3888/individual_book_train/stock_41.csv")
