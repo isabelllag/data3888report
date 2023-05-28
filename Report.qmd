@@ -36,15 +36,65 @@ Despite its significance, volatility is inherently unobservable and needs to be 
 
 ### A. Models
 
-In the project, we need to evaluate the effectiveness of six distinct models across the six clusters of the stock data. We considered different strategies to evaluate our models for each cluster. There are three metrics that  we plan to use. They are  Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, we decide to use RMSE to estimate the accuracy of our models instead of MAE and R\^2. RMSE gauges the mean square magnitude of errors, it is more sensitive to outliers. This characteristic is particularly salient in the realm of financial data, which often harbors significant outliers and where the impact of sizeable errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors,  it is less sensitive to outliers compared to RMSE. Also, we are not able to justify whether the error is positive or negative when we used MAE. But it is significant for volatility  to know its trends. These shortcomings also apply to R\^2. Even though R\^2  is good at providing  an overall measure of model fit, it fails to directly reflect the magnitude or direction of prediction errors.
+In the project, we need to evaluate the effectiveness of six distinct models across the six clusters of the stock data. We considered different strategies to evaluate our models for each cluster. There are three metrics that  we plan to use. They are  Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, we decide to use RMSE to estimate the accuracy of our models instead of MAE and R\^2. RMSE gauges the mean square magnitude of errors, it is more sensitive to outliers. This characteristic is particularly salient in the realm of financial data, which often harbors significant outliers and where the impact of sizable errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors,  it is less sensitive to outliers compared to RMSE. Also, we are not able to justify whether the error is positive or negative when we use MAE. But it is significant for volatility  to know its trends. These shortcomings also apply to R\^2. Even though R\^2  is good at providing  an overall measure of model fit, it fails to directly reflect the magnitude or direction of prediction errors.
 
 Besides, we also test the training time of each model. Since we can see that the RMSE boxes are similar for each model in our boxplot. Therefore shorter training time of a model could be better in the rapidly changing stock market.
+
+That\'s the mean of the RMSE of each model in each cluster. More information could be found in boxplots in the appendix. In this table, SVM and Ridge Regression performed better. But RMSE of SVM possessed a slightly dense distribution and fewer outliers in boxplots.
+
+|                  |             |             |             |             |             |             |
+|------------------|-------------|-------------|-------------|-------------|-------------|-------------|
+|                  | Cluster1    | Cluster2    | Cluster3    | Cluster4    | Cluster5    | Cluster6    |
+| ARMA-GARCH       | 0.000397717 | 0.000397711 | 0.000397592 | 0.000397779 | 0.000397691 | 0.00049788  |
+| SVM              | 0.000234895 | 0.000138351 | 0.000160307 | 0.000325224 | 0.000228932 | 0.00017798  |
+| Ridge Regression | 0.000257502 | 0.000186632 | 1.80E-04    | 0.000314913 | 0.000248003 | 0.00026557  |
+| LSTM             | 0.000307353 | 0.000529648 | 0.000259467 | 0.000631368 | 0.001059554 | 0.001005189 |
+| Random Forest    | 0.000651958 | 4.27E-04    | 4.30E-04    | 7.86E-04    | 5.87E-04    | 6.07E-04    |
+| HAV-RV           | 0.000788709 | 0.000546498 | 0.000570423 | 0.001038327 | 0.000775287 | 0.000700853 |
+
+```{r}
+library(readxl)
+# Read excel file that contains RMSEs for each model in a cluster
+final <-  read_excel("C2.xlsx")
+# Transfer some MSE to RMSE
+final$LINEAR<- sqrt(final$LINEAR)
+final$RF <- sqrt(final$RF)
+# Process the data
+final1 <- gather(final)
+final1 <- na.omit(final1)
+# We need to do it in cluster 6 since there is a super high RMSE in it.
+d = which(final1$value == max(final1$value))
+final1 = final1[-d,]
+# Draw the boxplot
+colors <- c("#0072B2", "#E69F00", "#009E73", "#F0E442", "#D55E00", "#CC79A7")
+ggplot(final1, aes(x = key, y = value, fill = key)) +
+  geom_boxplot(
+    notch = TRUE,
+    outlier.color = "black",
+    outlier.shape = 16,
+    width = 0.5
+  ) +
+  labs(x = "Models", y = "Rmse") +
+  ggtitle("Boxplot for cluster6") +
+  scale_fill_manual(values = colors) +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 8),
+    legend.position = "none",
+    panel.background = element_rect(fill = "#F5F5F5")
+  )
+```
+
+Also, We test the training time for each model using the same test data.
+
+Generally, SVM and Ridge Regression are good for the data. And if you need a shorter training time of the model, Ridge Regression could be a better choice.
 
 ### B. Deployment
 
 ## Discussion
 
-Our group identifies three main shortcomings of our project and final product. First, our project is much more focused on the data science discipline, neglecting the implications of financial knowledge. For example, we use only one method of calculating volatility, namely the standard deviation of returns, without considering other methods like beta coefficient. This potentially leads to differences in our final evaluation of models as our models\' performance may change depending on the method of volatility used. Second, our clustering of the dataset is possibly futile from hindsight. We clustered the stocks using liquidity; however, after evaluation, SVM(Support Vector Machine) ends up being the best model for the majority of the clusters. A potential reason for this is that our clustering is based on only one variable, i.e. liquidity, ignoring other characteristics of a stock. A better clustering using more variables can produce a different set of clusters, thus resulting in different model performance and final evaluation. Third, our group did not use feature selection, and we could have used selection criteria like AIC or BIC to choose the most important features. Such selection can reduce our training time, and potentially change our model performance, leading to different evaluation results.
+Our group identifies three main shortcomings of our project and final product. First, our project is much more focused on the data science discipline, neglecting the implications of financial knowledge. For example, we use only one method of calculating volatility, namely the standard deviation of returns, without considering other methods like beta coefficient. This potentially leads to differences in our final evaluation of models as our models' performance may change depending on the method of volatility used. Second, our clustering of the dataset is possibly futile from hindsight. We clustered the stocks using liquidity; however, after evaluation, SVM(Support Vector Machine) ends up being the best model for the majority of the clusters. A potential reason for this is that our clustering is based on only one variable, i.e. liquidity, ignoring other characteristics of a stock. A better clustering using more variables can produce a different set of clusters, thus resulting in different model performance and final evaluation. Third, our group did not use feature selection, and we could have used selection criteria like AIC or BIC to choose the most important features. Such selection can reduce our training time, and potentially change our model performance, leading to different evaluation results.
 
 ## Conclusion
 
@@ -222,40 +272,6 @@ We believe that these future works will improve our model performance.
 
 
 
-
-
-
-    library(readxl)
-    # Read excel file that contains RMSEs for each model in a cluster
-    final <-  read_excel("C1.xlsx")
-    # Transfer some MSE to RMSE
-    final$LINEAR<- sqrt(final$LINEAR)
-    final$RF <- sqrt(final$RF)
-    # Process the data
-    final1 <- gather(final)
-    final1 <- na.omit(final1)
-    # We need to do it in cluster 6 since there is a super high RMSE in it.
-    d = which(final1$value == max(final1$value))
-    final1 = final1[-d,]
-    # Draw the boxplot
-    colors <- c("#0072B2", "#E69F00", "#009E73", "#F0E442", "#D55E00", "#CC79A7")
-    ggplot(final1, aes(x = key, y = value, fill = key)) +
-      geom_boxplot(
-        notch = TRUE,
-        outlier.color = "black",
-        outlier.shape = 16,
-        width = 0.5
-      ) +
-      labs(x = "Models", y = "Rmse") +
-      ggtitle("Boxplot for cluster6") +
-      scale_fill_manual(values = colors) +
-      theme_minimal() +
-      theme(
-        axis.title = element_text(size = 14),
-        axis.text = element_text(size = 8),
-        legend.position = "none",
-        panel.background = element_rect(fill = "#F5F5F5")
-      )
 
 
     ```
