@@ -102,7 +102,7 @@ In the table below, we show the mean RMSE values for each cluster and each model
 | Random Forest    | 0.000651958 | 4.27E-04    | 4.30E-04    | 7.86E-04    | 5.87E-04    | 6.07E-04    |
 | HAV-RV           | 0.000788709 | 0.000546498 | 0.000570423 | 0.001038327 | 0.000775287 | 0.000700853 |
 
-```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE}
 library(readxl)
 library(tidyverse)
 # Read excel file that contains RMSEs for each model in a cluster
@@ -139,7 +139,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
 
 We also tested the computation time of each model using the same stock csv file and showed our result in the below boxplot.
 
-```{r, echo=FALSE, eval=FALSE, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE}
 rt <- read.csv('./dataset/result/All_Running_time.csv')
 
 SVM <- rt[1,1]
@@ -222,7 +222,7 @@ Aim & background: Baiyu Method A: everyone (do own model) Method B: Isabella Res
 
 1.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
 
-```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+```{r, eval=FALSE, warning=FALSE, message=FALSE}
 # Prepare work for clustering
 path <- "./data3888/Optiver/individual_book_train"
 names <- dir('./data3888/Optiver/individual_book_train')
