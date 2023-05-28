@@ -128,7 +128,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
     width = 0.5
   ) +
   labs(x = "Models", y = "Rmse") +
-  ggtitle("Boxplot for cluster6") +
+  ggtitle("Boxplot for cluster2") +
   scale_fill_manual(values = colors) +
   theme_minimal() +
   theme(
