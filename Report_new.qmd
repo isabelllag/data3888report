@@ -4,6 +4,12 @@ format: html
 editor: visual
 ---
 
+## Executive Summary
+
+The purpose of this project is to develop a model that accurately predicts volatility and to explain the model clearly to traders at Optiver. Our project has two key results. First, we found that SVM(Support Vector Machine) is most accurate for predicting the future volatility of most stocks, although ridge regression also performs well. Second, we deployed an interactive Shiny App to effectively communicate our results to traders.
+
+This project is practically relevant because volatility is an essential component of the Black-Scholes equation, which is important for options pricing. Therefore, our results on optimizing model accuracy and improving model communication can help traders to make effective trading strategies.
+
 ## Aim and Background
 
 **Aim**
@@ -53,21 +59,21 @@ The HAR-RV model (Heterogeneous Autoregressive Realized Volatility model) works 
 
 **SVM**
 
-SVM is a popular machine learning algorithm. Since SVM models are good at handling high-dimension data, we thought it is suitable for stock data which includes many variables for training. It is important to choose a suitable kernel in a SVM model, and  we chose Radial Basis Function (RBF) since it is good for handling non-linear and complex relationships such as volatility and other variables. RBF may overfit, however, and cost much time for training. In the training process, we circularly trained 4 time intervals then tested 1 time interval. Then we calculated the RMSE for each time ID. 
+SVM model performs well with highly complex data. Since stock datasets are complicated, our group believe that SVM is an important model to be evaluated. Choosing a suitable kernel is crucial for SVM's performance, and we chose Radial Basis Function (RBF) because this works well for non-linear and complex relationships, such as predicting volatility in our case. However, downsides of RBF includes overfitting and high training time, which are important aspects for evaluation. 
 
 **Ridge Regression**
 
-Ridge regression is a regularized linear regression method, which is part of the elastic network of the generalized linear regression model and controls the complexity of the model by introducing an L2 regularization term. Unlike ordinary linear regression, ridge regression adds a regularization term to the objective function, which is the product of the sum of the squares of the coefficients and a regularization parameter lambda. As a model in Elastic Net for Generalized Linear Regression, it can tune parameters. The parameter lambda determines the strength of model regularization, and the larger lambda determines the stronger regularization. When performing model tuning, different lambda values are usually tried, and the best lambda value is selected through methods such as cross-validation. This is to find a balance between bias and variance to obtain a model with better generalization ability.
+Ridge regression is a regularized linear regression method, which is part of the elastic network of the generalized linear regression model and controls model complexity by introducing an L2 regularization term. Unlike ordinary linear regression, ridge regression adds a regularization term to the objective function, which is the product of the sum of the squares of the coefficients and a regularization parameter lambda. Ridge regressions requires tuning parameters. The parameter lambda determines the strength of model regularization, and a larger lambda means a stronger regularization. When performing model tuning, different lambda values are usually tried, and the best lambda value is selected through methods such as cross-validation. This is to find a balance between bias and variance to obtain a model with better generalization ability.
 
 **LSTM**
 
-The LSTM (Long Short-Term Memory) deep learning model is a type of recurrent neural network designed to capture long-term dependencies in sequential data. LSTMs have memory cells controlled by input, forget, and output gates. They are chosen for research when long-term dependencies are important. LSTMs have achieved excellent results in various domains such as natural language processing and time series forecasting. For the implementation, R needs us to define the layers and corresponding parameters in the model, choosing the fitness loss function to the model, then training the model on the training data, using the validation data to adjust the prediction value. After all the epochs (like the iterative times), the model is trained and ready to use.
+The LSTM (Long Short-Term Memory) deep learning model is a type of recurrent neural network designed to capture long-term dependencies in sequential data. LSTMs have memory cells controlled by input, forget and output gates. This model is chosen when long-term dependencies are important. For our implementation, we defined the layers and the corresponding parameters, chose the fitness loss function to the model, trained the model using training datasets and finally used the validation data to adjust the prediction value. After all the epochs (like the iterative times), the model is trained and ready to be used.
 
 **Random Forest**
 
-A random forest model works by creating many decision trees, each of which is trained on a different subset of the data. The randomness comes from both the subsets of data chosen and the subsets of features considered when splitting each node in the tree. When making a prediction, the Random Forest feeds the input data to each of the decision trees in the forest. Each tree gives a prediction independently from the others. 
+A random forest model works by creating many decision trees, each of which is trained on a different subset of the data. The randomness comes from both choosing the subsets of data and choosing the subsets of features used for splitting each node in the tree. When making a prediction, random forest feeds the input data to each of the decision trees in the forest. Each tree gives a prediction independently from the others and decide a final results based on these independent predictions. 
 
-The reasons why the Random Forest model was chosen for this project are robustness and flexibility. Random Forests are less likely to overfit the data compared to individual decision trees because they average the results of many different trees. Random Forest can handle both linear and non-linear relationships between predictors and the target variable, which is useful because the relationship between various factors and market volatility might not always be linear.
+Advantages of random forest include robustness and flexibility. Random forest is less likely to overfit because the model averages the results of many different trees. Random Forest can handle both linear and non-linear relationships between predictors and the target variable, which is useful because the relationship between various factors and market volatility is non-linear and highly complex.
 
 ### B. **Relevance to Industry Partner**
 
