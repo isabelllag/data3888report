@@ -208,10 +208,9 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall MSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model.
+For this project, Derek calculate the liquidity for the data clustering, Alan did the k-means clustering, and each group member trains a model for comparing. After every one got the results, Derek generate the overall RMSE boxplot, and Yuxiang integrated all the code and calculated the training time for each model.
 
-For this report, Baiyu responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results A part. Yuxiang responsible for Results B, and Discussion & Conclusion wrote by Alan. Everyone in the group wrote their own model description part in Method A.
-
+For this report, Baiyu is responsible for Aim & background part. Isabella did the Method B. Derek and Tom completed the Results part A. Yuxiang responsible for Results Part B, and Discussion & Conclusion is written by Alan. Everyone in the group wrote their own model description part in Method A.
 
 ## References
 
@@ -228,14 +227,10 @@ For this report, Baiyu responsible for Aim & background part. Isabella did the M
 ```{r}
 sessionInfo()
 ```
-1. Boxplots for each cluster
 
-![Cluster1](figure1.png)
-![Cluster2](figure1.png)
-![Cluster3](figure1.png)
-![Cluster4](figure1.png)
-![Cluster5](figure1.png)
-![Cluster6](figure1.png)
+1.  Boxplots for each cluster
+
+![Cluster1](figure1.png) ![Cluster2](figure1.png) ![Cluster3](figure1.png) ![Cluster4](figure1.png) ![Cluster5](figure1.png) ![Cluster6](figure1.png)
 
 2.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
 
@@ -2116,7 +2111,7 @@ length(Cl4_Qlike) = 500
 length(Cl5_Qlike) = 500
 ```
 
-8. Shiny App code
+8.  Shiny App code
 
 ```{r}
 library(shiny)
@@ -2413,5 +2408,3 @@ shinyApp(ui = ui, server = server)
 Shiny App link:
 
 https://alanx.shinyapps.io/Optiver_13_Shiny/
-
-
