@@ -1673,7 +1673,7 @@ boxplot(RMSE)
 ```
 
 
-5.   Coding for ARMAGARCH model
+5. Coding for ARMAGARCH model
 
 ```{r, echo=FALSE}
 #helper function, computes vol
