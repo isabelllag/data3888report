@@ -1850,5 +1850,4 @@ boxplot(cluster6_mse, main="Cluster 6 MSE")
     boxplot(cluster4_mse, main="Cluster 4 MSE")
     boxplot(cluster5_mse, main="Cluster 5 MSE")
     boxplot(cluster6_mse, main="Cluster 6 MSE")
->>>>>>> 082f8da9730c4cb2d11445d5f173ce0cc8204531
 ```
