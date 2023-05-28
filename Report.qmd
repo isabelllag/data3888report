@@ -55,7 +55,7 @@ That\'s the mean of the RMSE of each model in each cluster. More information cou
 ```{r}
 library(readxl)
 # Read excel file that contains RMSEs for each model in a cluster
-final <-  read_excel("C2.xlsx")
+final <-  read_excel("./dataset/result/C2.xlsx")
 # Transfer some MSE to RMSE
 final$LINEAR<- sqrt(final$LINEAR)
 final$RF <- sqrt(final$RF)
