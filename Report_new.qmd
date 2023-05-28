@@ -29,13 +29,13 @@ Despite being a critical measure for trading, volatility is inherently difficult
 
 ### A. Data Science Perspective
 
-The data we used for this project is the relevant stock data provided by Optiver. Stock data mainly consists of price data and time data. Price data include bid price, ask price, bid size and ask size. Time data contains time id and seconds in each time id. 
+The data for this project is the relevant stock datasets provided by Optiver. Our stock data consists of price, volume and time variables, including bid price, ask price, bid size, ask size, time id and seconds in each time id. 
 
-Once the model has been trained, it needs to be evaluated to determine how well it is performing. This can be done using a combination of graphical and quantitative metrics.
+After all models are trained, they were evaluated for their performance. This is done using a combination of graphical and quantitative method:
 
-Graphical: The plots we used for evaluation include actual vs. predicted linear plots, box plots of RMSE for each cluster, QLIKE box plots for each cluster, and ACF plots. These graphics can provide a visual indication of how well the model is fitting the data.
+1.  Graphical: The plots used for evaluation include actual v.s. predicted linear plots, box plots of RMSE for each cluster, QLIKE box plots for each cluster, and ACF plots. These graphics provide a visual indication of how well the model is performing.
 
-Quantitative: Quantitative metrics provide a more objective assessment of the model's performance. For a regression task like predicting volatility, these might include metrics like Root Mean Squared Error (RMSE), and R-squared. 
+2.  Quantitative: Quantitative metrics provide a more direct assessment of the model's performance. For the task of predicting volatility, these might include metrics like Root Mean Squared Error (RMSE), and R-squared. 
 
 We developed six models in this project: ARMA-GARCH, HAV-RV, SVM, Ridge Regression, Random Forest and LSTM.
 
@@ -48,6 +48,8 @@ This model was chosen for this project because it is conventionally used by the 
 The main assumption for the model is stationarity (see appendix). 
 
 **HAV-RV**
+
+The HAR-RV model (Heterogeneous Autoregressive Realized Volatility model) works directly on realized volatility to predict future volatility. Because this model is generally used for daily realized volatility while our data\'s time interval is much shorter, HAR-RV model in this project only serves as a benchmark. We used realized volatility for the previous time interval and the mean realized volatility for the past five time intervals to predict future volatility. Since stock datasets are highly complex, we used Weighted Least Square for prediction.
 
 **SVM**
 
@@ -135,11 +137,11 @@ Generally, SVM and Ridge Regression are good for the data. And if you need a sho
 
 ### B. Deployment
 
-Before analyzing each stock data provided by Optiver, we need to separate them into different clusters. For data analysis, clusters can compare the differences between data sets to facilitate the subsequent search for predictive models suitable for each set of data. Since the data set is stock data, we want to classify based on the characteristics of the stock data itself. We decided to classify the liquidity of each stock data. Because liquidity is one of the important metrics in stock trading.\[1\] It reflects the trading activity of a stock market. A liquid market has a faster conversion of assets into funds. Liquidity is very important to investors. This can often reflect the time, money and cost invested by investors in the stock market.\[2\]
+Before analyzing each stock data provided by Optiver, our group separated the datasets into different clusters. Because different stocks can have very different charateristics, clustering helps to identify these differences so that we can analyse the clusters individually and find the best model for a particular type of stock.  Given the financial nature of the datasets, our group decided to use liquidity - one of the most important metrics in stock trading - for clustering.\[1\] Liquidity measures how rapidly a stock can be bought or sold without significantly impacting its price, and we used the following formula to calculate liquidity:
 
 liquidity= sum(mean(bid_size1),mean(bid_size2),mean(ask_size1),mean(ask_size2))
 
-All data sets can be clustered by liquidity. The K-mean is used as the clustering method. Separate the dataset into six groups, including a set of outliers. Each group consists of 5 stock data sets, a total of 30 data sets. We process and predict the economic characteristics of the 30 datasets. There are many kinds of data in each data set. We need to calculate WAP, Bidaskapread, number of orders, oversize and volatility. (insert formula).
+All data sets were clustered using liquidity as the metrics and K-means as the clustering method. We first selected 5 stocks with extremely high volatilities as outliers and categorised them into a separate cluster. Then, our group clustered the remaining stocks into 5 clusters, choosing 5 stocks from each cluster, for a total of 30 stocks to analyse. Besides the original variables, we also calculated WAP, Bidaskspread, number of orders, oversize and volatility (formulae below):
 
 WAP=(bid_price1 \* ask_size1 + ask_price1 \* bid_size1)/(bid_size1 + ask_size1))
 
@@ -151,13 +153,11 @@ over_bid = sum(bid_size1) +sum(bid_size2)-sum(ask_size1)-sum(ask_size2)
 
 volatility= √(〖sum(log⁡return)〗\^2 )
 
-Since each time id is not sequential, the seconds data in the time id are sequential. We select 100 time ids and divide the second data in a time id into time buckets and then calculate the volatility in the time buckets predict. We use set.seed() to ensure that the time id extracted by each group member is the same. A time id is roughly 600 seconds, and we choose 30 seconds as a time bucket. Each time id is separated as training and testing data sets. The training data set is used for training the predictive model and testing data sets are used for testing the accuracy. The volatility is predicted after averaging the data in it. Each person's forecasting model predicts and calculate RMSE based on their data. The RMSE of each model in the cluster is 500. Measure the accuracy of each model in each cluster.
+Since time id\'s are not sequential while seconds in time id\'s are sequential, our group divided the time within a time id to time intervals and calculated volatilities for each time interval. Each time id is roughly 600 seconds, with each time interval 30 seconds. After training and testing the model, our group calculated RMSE based on their data and organised the results into box-plots that are categorized according to different clusters and models. (Formula of RMSE shown below):
 
 RMSE= √(〖mean((predicted -actual)〗\^2)) 
 
- 
-
-To demonstrate our work, we use the R shiny app and its interactive features. In the R shiny app, we display the RMSE boxplots of the 6 models for each cluster. And then draw a prediction diagram of the model with the highest prediction accuracy in this cluster. At the same time, R shiny app with interactive features. Users can upload a dataset they want to predict. The R shiny app will detect the cluster of the uploaded data set and select the model with the highest accuracy of the cluster to predict the volatility and return the forecast image. The main function of the R shiny app is to demonstrate the capabilities of our predictive models to customers and make customers feel involved in customizing personalized forecast results.\[3\]
+We communicate our group\'s product using R shiny app. Based on user\'s input, the app can display the RMSE boxplots of the 6 models for each cluster or a prediction vs actual plot of volatilises for the best model of the cluster. To help traders interpreting the model, we included a short description of the best model\'s working principles and justifications of why it is selected. Furthermore, the shiny app includes interactive feature that allows user to upload a stock csv file and predict volatilities immediately. The app will show the stock\'s liquidity, its assigned cluster based on liquidity, and using the best model for the particular cluster, our shiny app will produce a prediction vs actual plot generated from the selected model. This feature allows traders to directly assess our model\'s performance, thus assisting them to make decision on whether the model should be used.
 
 ## Discussion
 
@@ -180,10 +180,6 @@ We believe that these future works will improve our model performance.
 ## References
 
 \[1\] Ben R. Marshall, Martin Young Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
-
-\[2\] ALLAUDEEN HAMEED, WENJIN KANG, S. VISWANATHAN Stock Market Declines and Liquidity (2010) https://doi.org/10.1111/j.1540-6261.2009.01529.x
-
-\[3\] Hong Zhang, Yaobin Lu, Sumeet Gupta, Ling Zhao What motivates customers to participate in social commerce? The impact of technological environments and virtual customer experiences (2014) https://doi.org/10.1016/j.im.2014.07.005
 
 Wei Liu and Bruce Morley, 'Volatility in the Hang Seng Index using the GARCH Approach', Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4
 
