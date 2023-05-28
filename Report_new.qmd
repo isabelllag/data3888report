@@ -1,6 +1,8 @@
 ---
 title: "DATA3888 Report: Optiver 13"
-format: html
+format:
+  html:
+    code-fold: true
 editor: visual
 ---
 
@@ -210,7 +212,7 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
 
 \[1\] Ben R. Marshall, Martin Young Liquidity and stock returns in pure order-driven markets: evidence from the Australian stock market (2003) https://doi.org/10.1016/S1057-5219(03)00006-1
 
-\[2\] ALLAUDEEN HAMEED, WENJIN KANG, S. VISWANATHAN Stock Market Declines and Liquidity (2010)[ https://doi.org/10.1111/j.1540-6261.2009.01529.x](https://doi.org/10.1111/j.1540-6261.2009.01529.x) 
+\[2\] ALLAUDEEN HAMEED, WENJIN KANG, S. VISWANATHAN Stock Market Declines and Liquidity (2010)<https://doi.org/10.1111/j.1540-6261.2009.01529.x> 
 
 \[3\] Hong Zhang, Yaobin Lu, Sumeet Gupta, Ling Zhao What motivates customers to participate in social commerce? The impact of technological environments and virtual customer experiences (2014) https://doi.org/10.1016/j.im.2014.07.005
 
@@ -1522,15 +1524,18 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
 
     ```
 
-    4.  Coding for HAV-RV
+    4.  Coding for HAR-RV
 
     ```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
+    #Reading in stock csv file
     stock_1 <- read.csv("~/Desktop/DATA3888/individual_book_train/stock_41.csv")
 
+    #Calculating necessary variables for HAR-RV model
     stock_1 <- stock_1 %>% mutate(
       WAP = (bid_price1 * ask_size1 + ask_price1 * bid_size1) / (bid_size1 + ask_size1))
     stock_1 <- stock_1 %>% mutate(BidAskSpread = ask_price1 / bid_price1 - 1)
 
+    #Calculating volatilities for training and testing sets
     log_r1 <- list()
     time_IDs <- unique(stock_1[, 1])[1:50]
     for (i in 1 : length(time_IDs)) {
@@ -1590,6 +1595,7 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
 
     len.train <- length(vol.train[[1]]$volatility)
 
+    #Calculating mean volatilities
     list.HAV <- list()
 
     for (i in 1 : length(vol)) {
@@ -1602,6 +1608,7 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
                                   mean_vol_5 = mean.vol)
     }
 
+    #Calculating quarticity
     quar <- list()
     comp_quar <- function(x) {
       return(length(x) / 3 * sum(x ^ 4))
@@ -1611,18 +1618,20 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
       colnames(quar[[i]]) <- c('time_bucket', 'quarticity')
     }
 
+    #Training models
     HAV.ols.models <- list()
     HAV.wls.models <- list()
 
     for (i in 1 : length(vol)) {
       HAV.ols.models[[i]] <- lm(vol ~ vol_1 + mean_vol_5, list.HAV[[i]])
       
-      # weight.HAV <- 0
+
       HAV.wls.models[[i]] <- lm(vol ~ vol_1 + mean_vol_5, list.HAV[[i]],
                                 weights = list.HAV[[i]]$vol_1 / 
                                   sqrt(quar[[i]]$quarticity[5:(len.train - 1)]))
     }
 
+    #Testing the model
     vol.test <- list()
 
     for (i in 1 : length(log_r1_2)) {
@@ -1643,20 +1652,18 @@ For this project, Derek calculate the liquidity for the data clustering, Alan di
                                   mean_vol_5 = mean.vol)
     }
 
+    #Calculating RMSE and computing boxplot
+    RMSE <- c()
 
     for (i in 1:50){
       for(j in 1:10){
         predicted <- predict(HAV.wls.models[[i]], newdata = list.HAV.test[[(i-1)*5 + j]])
         mse <- mean((predicted - list.HAV.test[[(i-1)*5 + j]]$vol)^2)
         rmse <- sqrt(mse)
-        RMSE_6 <- append(RMSE_6, rmse)
+        RMSE <- append(RMSE, rmse)
       }
     }
-    boxplot(RMSE_1)
-
-    rmses <- data.frame(RMSE_1,RMSE_2,RMSE_3,RMSE_4,RMSE_5,RMSE_6)
-    names(rmses) <- c("cluster1","cluster2","cluster3","cluster4","cluster5","cluster6")
-    write.csv(rmses, "~/Downloads/rmse.csv", row.names=FALSE)
+    boxplot(RMSE)
     ```
 
 ### 
