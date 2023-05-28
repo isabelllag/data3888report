@@ -1,0 +1,74 @@
+---
+title: "Code_file"
+author: '510055611'
+date: "2023-05-28"
+output: html_document
+---
+
+```{r}
+boxplot(Cl1_MSE,Cl2_MSE,Cl3_MSE,Cl4_MSE,Cl5_MSE,Cl6_MSE,horizontal = TRUE , main = "Random Forest MSE", ylab = "Clusters",xlab = "MSE value", names=c("Cl 1", "Cl 2", "Cl 3", "Cl 4", "Cl 5", "Cl 6"))
+```
+
+
+```{r}
+plot(Cl1_Qlike, type = 'l',ylim = c(0,8) ,ylab = "Qlike", xlab = "Stocks")
+lines(Cl2_Qlike, col = "red")
+lines(Cl3_Qlike, col = "blue")
+lines(Cl4_Qlike, col = "green")
+lines(Cl5_Qlike, col = "orange")
+lines(Cl6_Qlike, col = "pink")
+```
+
+```{r}
+plot(Cl1_MSE, type = 'l', ylab = "MSE", xlab = "Stocks")#ylim = c(0,3e-05)
+lines(Cl2_MSE, col = "red")
+lines(Cl3_MSE, col = "blue")
+lines(Cl4_MSE, col = "green")
+lines(Cl5_MSE, col = "orange")
+lines(Cl6_MSE, col = "pink")
+```
+
+
+```{r}
+MSE = vector("list", 30)
+QLIKE = vector("list", 30)
+R_square = vector("list", 30)
+
+for (j in 1:length(data_frames)) {
+  
+  mse <- vector()
+  qlike <- vector()
+  rsq <- vector()
+  vol = Volatility_t[[j]]
+
+  for (i in 1 : length(vol)) {
+    mse <- c(mse, mean((Volatility_t[[j]][[i]]$volatility - Prediction[[j]][[i]]) ^ 2))
+    qlike <- c(qlike, mean(Volatility_t[[j]][[i]]$volatility / Prediction[[j]][[i]] - log(Volatility_t[[j]][[i]]$volatility / Prediction[[j]][[i]]) - 1))
+    rsq <- c(rsq, cor(Volatility_t[[j]][[i]]$volatility, Prediction[[j]][[i]]) ^ 2)
+    
+  }
+  
+  qlike <- qlike[is.finite(qlike)]
+  
+    
+  MSE[[j]] = mse
+  QLIKE[[j]] = qlike
+  R_square[[j]] = rsq
+    
+}
+```
+
+
+```{r}
+boxplot(Cl2_MSE,horizontal = TRUE , main = "Random Forest MSE")
+boxplot(Cl2_Qlike, horizontal = TRUE, main = "Random Forest QLIKE")
+```
+
+```{r}
+plot(Volatility_t[[1]][[2]]$time_bucket, Prediction[[1]][[2]], type = "l",col = "red", ylab = "Volatility", xlab = "Time bucket")
+lines(Volatility_t[[1]][[2]]$time_bucket, Volatility_t[[1]][[2]]$volatility,type = "l", col = "blue")
+legend("topright", 
+       legend = c("Prediction volatility", "volatility"),
+       col = c("red", "blue"), lty = 1)
+```
+
