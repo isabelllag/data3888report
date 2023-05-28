@@ -221,11 +221,6 @@ Aim & background: Baiyu Method A: everyone (do own model) Method B: Isabella Res
 \[4\] Wei Liu and Bruce Morley, 'Volatility in the Hang Seng Index using the GARCH Approach', Asia-Pacific Financial Markets 16:51-63 (2009) https://doi.org/10.1007/s10690-009-9086-4
 
 ## Appendix
-
-```{r}
-sessionInfo()
-```
-
 1.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
 
 ```{r, eval=FALSE, warning=FALSE, message=FALSE}
@@ -1675,7 +1670,7 @@ boxplot(RMSE)
 
 5. Coding for ARMAGARCH model
 
-```{r, echo=FALSE}
+```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 #helper function, computes vol
 comp_vol <- function(x) {
   return(sqrt(sum(x ^ 2)))
@@ -1764,7 +1759,7 @@ boxplot(cluster6_mse, main="Cluster 6 MSE")
 
 6. Coding for Random Forest
 
-```{r,message=FALSE}
+```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 library(randomForest)
 library(readr)
 library(dplyr)
@@ -1781,7 +1776,7 @@ stock_names = data_clust$Stocks
 stock_names = c(stock_names, "stock_31.csv", "stock_32.csv","stock_77.csv","stock_108.csv","stock_41.csv")
 stock_names
 
-Generate path
+#Generate path
 path <- "/Users/cco/Desktop/individual_book_train/"
 files <- paste0(path, stock_names)
 
@@ -1869,7 +1864,7 @@ for (j in 1:length(data_frames)) {
 ggplot(data = Volatility[[30]][[99]], aes(x = time_bucket, y = volatility)) + geom_line() + geom_point()
 ```
 
-```{r}
+```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 set.seed(3888)
 
 Logr_stocks_t = list()
@@ -2110,4 +2105,3 @@ Cl6_rsq <- c(R_square[[26]],R_square[[27]],R_square[[28]],R_square[[29]],R_squar
 length(Cl4_Qlike) = 500
 length(Cl5_Qlike) = 500
 ```
-
