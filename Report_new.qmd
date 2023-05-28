@@ -128,7 +128,7 @@ ggplot(final1, aes(x = key, y = value, fill = key)) +
     width = 0.5
   ) +
   labs(x = "Models", y = "Rmse") +
-  ggtitle("Boxplot for cluster6") +
+  ggtitle("Boxplot for cluster2") +
   scale_fill_manual(values = colors) +
   theme_minimal() +
   theme(
@@ -231,11 +231,11 @@ sessionInfo()
 1. Boxplots for each cluster
 
 ![Cluster1](figure1.png)
-![Cluster2](figure1.png)
-![Cluster3](figure1.png)
-![Cluster4](figure1.png)
-![Cluster5](figure1.png)
-![Cluster6](figure1.png)
+![Cluster2](figure2.png)
+![Cluster3](figure3.png)
+![Cluster4](figure4.png)
+![Cluster5](figure5.png)
+![Cluster6](figure6.png)
 
 2.  Here is the coding part for clustering stocks, stock selection, process of SVM model and production of RMSE box plots.
 
@@ -2409,8 +2409,6 @@ shinyApp(ui = ui, server = server)
 
 
 ```
-
-![Figure1](figure1.png)
 
 Shiny App link:
 
