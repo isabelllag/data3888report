@@ -67,7 +67,7 @@ comp_vol <- function(x) {
   return(sqrt(sum(x ^ 2)))
 }
 
-#function, input is stock and timeid, output is mse.ag
+#function, input is stock, output is mse.ag which can then be input into boxplot function
 arma_mse <- function(stock){
   #calculate WAP and bid ask spread
   stock <- stock %>% mutate(
@@ -76,7 +76,6 @@ arma_mse <- function(stock){
     BidAskSpread = ask_price1 / bid_price1 - 1)
   
   #compute vol and log_r1
-  
   log_r1 <- list()
   time_IDs <- unique(stock[, 1])[1:500]
   for (i in 1 : length(time_IDs)) {
