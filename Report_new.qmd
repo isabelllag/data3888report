@@ -84,7 +84,7 @@ Comparing a variety of models was relevant to Optiver because not only did it me
 
 ### A. Models
 
-In the project, we need to evaluate the effectiveness of six distinct models across the six clusters of the stock data. We considered different strategies to evaluate our models for each cluster. There are three metrics that  we plan to use. They are  Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, we decide to use RMSE to estimate the accuracy of our models instead of MAE and R\^2. RMSE gauges the mean square magnitude of errors, it is more sensitive to outliers. This characteristic is particularly salient in the realm of financial data, which often harbors significant outliers and where the impact of sizable errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors,  it is less sensitive to outliers compared to RMSE. Also, we are not able to justify whether the error is positive or negative when we use MAE. But it is significant for volatility  to know its trends. These shortcomings also apply to R\^2. Even though R\^2  is good at providing  an overall measure of model fit, it fails to directly reflect the magnitude or direction of prediction errors.
+In the project, our group evaluated the performance of six distinct models across the six clusters of the stock data. We considered three potential evaluation metrics, which are Root Mean Square Error (RMSE), the coefficient of determination (R\^2), and Mean Absolute Error (MAE). Among these metrics, our group decided to use RMSE for evaluating model performance because RMSE gauges the mean square magnitude of errors, making it more sensitive to detect outliers. This characteristic is particularly valuable in analyzing financial data, which often harbors significant outliers and where the impact of errors can be considerable. Contrastingly, the Mean Absolute Error (MAE) measures the absolute magnitude of errors, which is less sensitive to outliers compared to RMSE. Such disadvantage also applies to R\^2.
 
 Besides, we also test the training time of each model. Since we can see that the RMSE boxes are similar for each model in our boxplot. Therefore shorter training time of a model could be better in the rapidly changing stock market.
 
@@ -203,11 +203,16 @@ We believe that these future works will improve our model performance.
 
 ## Student Contributions
 
-Aim & background: Baiyu 
+Aim & background: Baiyu
+
 Method A: everyone (do own model)
+
 Method B: Isabella
+
 Results A: Derek & Tom
-Results B: Yuxiang 
+
+Results B: Yuxiang
+
 Discussion and conclusion: Alan
 
 ## References
